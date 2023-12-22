@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ad-classification"
+version = "0.1.0"
+description = ""
+authors = ["Anton Roman Young <89807629+antonryoung02@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "^2.1.4"
+torch = "^2.1.2"
+pytest = "^7.4.3"
+pillow = "^10.1.0"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.27.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

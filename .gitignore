@@ -1,0 +1,5 @@
+data_neg/
+data_pos/
+processed_data/
+
+stop_signal.txt
