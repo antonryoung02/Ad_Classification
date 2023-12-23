@@ -1,7 +1,9 @@
 from modeling.preprocessing import preprocess_image, preprocess_data
 from PIL import Image
 import os
+
 def clear_directory(directory):
+    """Clears output directory for test reusability"""
 
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
@@ -12,6 +14,8 @@ def clear_directory(directory):
             print(f'Error: {e}')
 
 def test_preprocess_data():
+    """Tests transformation of ./tests/test_input data folder"""
+
     input_dir = "./tests/test_input"
     output_dir = "./tests/test_output"
     width, height = 300, 200

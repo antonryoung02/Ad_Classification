@@ -2,18 +2,17 @@ import numpy as np
 import pandas as pd  
 from PIL import Image
 import os
-
         
-def preprocess_image(image: Image, dimensions: tuple) -> Image:
+def preprocess_image(image: Image, dimensions: tuple=(320,180)) -> Image:
     """
-    Converts an Image object to desired size / #channels
+    Converts an Image object to size / #channels compatible with the CNN
     """
 
     width, height = dimensions
     resized_image = image.resize((width, height))
     return resized_image.convert("RGB")
 
-def preprocess_data(input_dir:str, output_dir:str, dimensions:tuple=(320,180)) -> None:
+def preprocess_data(input_dir:str, output_dir:str) -> None:
     """
     Transforms all .png files to desired specifications using preprocess_image
 
@@ -31,7 +30,7 @@ def preprocess_data(input_dir:str, output_dir:str, dimensions:tuple=(320,180)) -
         if filename.lower().endswith('.png'):
             image_path = os.path.join(input_dir, filename)
             image = Image.open(image_path)
-            processed_image = preprocess_image(image, dimensions)
+            processed_image = preprocess_image(image)
             
             output_path = os.path.join(output_dir, filename)
             processed_image.save(output_path)
@@ -48,6 +47,6 @@ def process_training_data():
     preprocess_data(pos_input, pos_output)
     preprocess_data(neg_input, neg_output)
 
-process_training_data()
+#process_training_data()
 
 
