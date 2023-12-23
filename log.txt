@@ -2011,3 +2011,35 @@ Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/scr
 Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231222_191850.png
 Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231222_191854.png
 Stop signal received. Exiting script.
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142759.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142802.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142806.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142809.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142812.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142815.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142819.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142822.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142825.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142829.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142832.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142835.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142838.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_142842.png
+Stop signal received. Exiting script.
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144437.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144440.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144443.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144447.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144450.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144453.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144456.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144500.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144503.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144506.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144510.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144513.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144516.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144520.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144523.png
+Screenshot saved to /Users/anton/Downloads/Coding/Ad_Classification/data_pos/screenshot_20231223_144526.png
+Stop signal received. Exiting script.

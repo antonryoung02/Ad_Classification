@@ -13,4 +13,4 @@ def find_fc_layer_input_shape(model: nn.Sequential, input_shape: tuple):
             if isinstance(layer, nn.Flatten):
                 break  # Stop right before Flatten layer
 
-    return dummy_input.shape[1:]  # Return the shape excluding the batch dimension
+    return dummy_input.shape[1:]

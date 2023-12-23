@@ -17,4 +17,11 @@ class SimpleCNN(nn.Module):
         )
 
     def forward(self, x):
+        """Performs forward propogation"""
         return self.network(x)
+    
+    def load_model_checkpoint(self, file_path:str) -> nn.Module:
+        """Loads weights of pretrained model"""
+        self.load_state_dict(torch.load(file_path))
+        return self
+
