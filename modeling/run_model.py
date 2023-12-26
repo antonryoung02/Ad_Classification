@@ -11,8 +11,8 @@ from PIL import Image
 from preprocessing import preprocess_image
 
 class RunModel:
-    """Encapulates pytorch learning / performance functions """
-    def __init__(self, batch_size:int, data, model:nn.Module, criterion, optimizer, train_proportion:float = 0.8):
+    """Encapulates pytorch learning / performance functions. """
+    def __init__(self, data:ImageFolder, model:nn.Module, criterion, optimizer, batch_size:int=32, train_proportion:float = 0.8):
         """ 
         param batch_size: batch size in training/validation
         param data: ImageFolder object of all true/neg examples
@@ -26,25 +26,26 @@ class RunModel:
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
-        self.train_loader, self.val_loader = self.split_dataset(data, train_proportion)
+        self.train_proportion = train_proportion
+        self.train_loader, self.val_loader = self.split_dataset(train_proportion)
 
         self.train_losses = []
         self.val_losses = []
         self.val_precisions = []
         self.val_recalls = []
     
-    def split_dataset(self, data:ImageFolder, train_proportion:float) -> Tuple[DataLoader, DataLoader]:
+    def split_dataset(self, train_proportion:float) -> Tuple[DataLoader, DataLoader]:
         """Helper function called during init that splits all data into train/val"""
-        total_samples = len(data)
+        total_samples = len(self.data)
         train_size = int(total_samples * train_proportion)
         val_size = total_samples - train_size
-        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+        train_dataset, val_dataset = random_split(self.data, [train_size, val_size])
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=self.batch_size, shuffle=False)
         return train_loader, val_loader
 
     def train(self) -> float:
-        """Performs 1 training step"""
+        """Performs 1 training step. Called at each epoch in model training"""
         self.model.train()
         train_loss = 0    
         train_loader = tqdm(self.train_loader, desc='Training', leave=False)
@@ -64,7 +65,7 @@ class RunModel:
         return train_loss / len(self.train_loader)
     
     def validate(self) -> Tuple[float, float, float]:
-        """Calculates validation metrics"""
+        """Calculates validation metrics. Called at each epoch in model training if validation set exists"""
         self.model.eval()
         val_loss = 0
         all_outputs = []
@@ -89,27 +90,25 @@ class RunModel:
 
     def run(self, num_epochs:int):
         """Trains the model to desired threshold(s)"""
-
-        # Wrap the epoch loop with tqdm
         epoch_progress = tqdm(range(1, num_epochs + 1), desc='Overall Epoch Progress', unit='epoch')
 
         for epoch in epoch_progress:
             train_loss = self.train()
             self.train_losses.append(train_loss)
+            if self.train_proportion < 1:
+                val_loss, precision, recall = self.validate()
+                self.val_losses.append(val_loss)
+                self.val_precisions.append(precision)
+                self.val_recalls.append(recall)
+            else:
+                val_loss, precision, recall = None, None, None
 
-            val_loss, precision, recall = self.validate()
-            self.val_losses.append(val_loss)
-            self.val_precisions.append(precision)
-            self.val_recalls.append(recall)
-
-            # Update the tqdm epoch progress description after each epoch
             epoch_progress.set_description(f'Epoch {epoch}/{num_epochs}')
             epoch_progress.set_postfix(Train_Loss=train_loss, Val_Loss=val_loss, Precision=precision, Recall=recall)
-        
+
     def inference(self, image_path):
         """Performs inference on a single image and displays the result."""
 
-        # Preprocess the image
         transform = transforms.Compose([
             transforms.ToTensor(),
         ])
@@ -126,8 +125,8 @@ class RunModel:
         plt.title(f"Predicted: {predicted_class}, Probability of Advertisement: {probability:.4f}")
         plt.show()
     
-    def save(self, file_path):
-        """Saves the model's state dictionary to output file."""
+    def save(self, file_path:str="./modeling/raspberry_pi_advertisement"):
+        """Saves the model's state dictionary to output file. Default to raspberry pi directory"""
 
         torch.save(self.model.state_dict(), file_path)
 

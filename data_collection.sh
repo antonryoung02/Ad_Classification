@@ -11,7 +11,6 @@ rm -rf $STOP_FILE >> "$LOG_FILE" 2>&1
 while true
 do
     if [ -f "$STOP_FILE" ]; then
-        echo "Stop signal received. Exiting script." >> "$LOG_FILE" 2>&1
         break
     fi
     # File name for the screenshot
@@ -22,7 +21,7 @@ do
 
     # Taking the screenshot
     if screencapture -x "$FILEPATH" >> "$LOG_FILE" 2>&1; then
-        echo "Screenshot saved to $FILEPATH" >> "$LOG_FILE" 2>&1
+        echo ""
     else
         echo "Failed to save screenshot to $FILEPATH" >> "$LOG_FILE" 2>&1
     fi
