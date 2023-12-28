@@ -124,9 +124,8 @@ class RunModel:
         plt.title(f"Predicted: {predicted_class}, Probability of Advertisement: {probability:.4f}")
         plt.show()
     
-    def save(self, file_path:str="./modeling/raspberry_pi_advertisement"):
+    def save(self, file_path:str="./raspberry_pi_advertisement"):
         """Saves the model's state dictionary to output file. Default to raspberry pi directory"""
-
         torch.save(self.model.state_dict(), file_path)
 
     def plot_curves(self):
