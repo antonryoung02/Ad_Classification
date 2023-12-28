@@ -13,7 +13,7 @@ class SimpleCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
             nn.Flatten(),
-            nn.Linear(230400, 1),
+            nn.Linear(409600, 1),
         )
 
     def forward(self, x):
