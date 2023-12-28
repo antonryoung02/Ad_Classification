@@ -1,5 +1,5 @@
-data_neg/
-data_pos/
-processed_data/
+raw_data/
+modeling/data
+modeling/raspberry_pi_advertisement/data
 
 stop_signal.txt

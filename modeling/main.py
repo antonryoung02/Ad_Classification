@@ -9,15 +9,14 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-data = ImageFolder(root='processed_data', transform=transform)
+data = ImageFolder(root='./modeling/data', transform=transform)
 model = SimpleCNN()
-model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
+#model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
 criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 run_model = RunModel(data, model, criterion, optimizer)
 
-#run_model.run(num_epochs=10)
-#run_model.plot_curves()
-run_model.inference("/Users/anton/Desktop/Screen Shot 2023-12-23 at 2.13.33 PM.png")
-#run_model.save("./modeling/simple_cnn_checkpoint.pth")
+run_model.run(num_epochs=10)
+run_model.plot_curves()
+run_model.save("./modeling/simple_cnn_checkpoint.pth")

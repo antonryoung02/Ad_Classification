@@ -8,7 +8,6 @@ from tqdm import tqdm
 from typing import Tuple
 from torchvision import transforms
 from PIL import Image
-from preprocessing import preprocess_image
 
 class RunModel:
     """Encapulates pytorch learning / performance functions. """
@@ -47,7 +46,7 @@ class RunModel:
     def train(self) -> float:
         """Performs 1 training step. Called at each epoch in model training"""
         self.model.train()
-        train_loss = 0    
+        train_loss = 0 
         train_loader = tqdm(self.train_loader, desc='Training', leave=False)
 
         for inputs, labels in train_loader:
@@ -112,8 +111,8 @@ class RunModel:
         transform = transforms.Compose([
             transforms.ToTensor(),
         ])
-        image = Image.open(image_path)
-        image = transform(preprocess_image(image)).unsqueeze(0) #Using preprocessing function assuming inference data is not transformed
+        image = Image.open(image_path).resize((320, 180)).convert('RGB')
+        image = transform(image).unsqueeze(0) #Using preprocessing function assuming inference data is not transformed
         self.model.eval()
         with torch.no_grad():
             outputs = self.model(image)

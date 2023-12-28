@@ -3,7 +3,7 @@ from torch import nn
 
 def find_fc_layer_input_shape(model: nn.Sequential, input_shape: tuple):
     """Finds the output shape of the last conv/pool layer in a Sequential model, 
-       which is the required input shape for the first fc layer."""
+       which is the required input shape for the fc layer."""
     batch_size = 1
     dummy_input = torch.rand(batch_size, *input_shape)
 
