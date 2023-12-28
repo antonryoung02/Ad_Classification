@@ -1,5 +1,6 @@
 raw_data/
 modeling/data
 modeling/raspberry_pi_advertisement/data
+data_processing/tests/test_output/
 
 stop_signal.txt
