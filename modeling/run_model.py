@@ -111,7 +111,7 @@ class RunModel:
         transform = transforms.Compose([
             transforms.ToTensor(),
         ])
-        image = Image.open(image_path).resize((320, 180)).convert('RGB')
+        image = Image.open(image_path).resize((320, 320)).convert('RGB')
         image = transform(image).unsqueeze(0) #Using preprocessing function assuming inference data is not transformed
         self.model.eval()
         with torch.no_grad():

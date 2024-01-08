@@ -19,4 +19,5 @@ run_model = RunModel(data, model, criterion, optimizer)
 
 run_model.run(num_epochs=10)
 run_model.plot_curves()
-run_model.save("./modeling/simple_cnn_checkpoint.pth")
+run_model.save("./mac_inference/simple_cnn_checkpoint.pth")
+run_model.save("./pi_inference/simple_cnn_checkpoint.pth")
