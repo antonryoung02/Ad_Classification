@@ -12,6 +12,7 @@ transform = transforms.Compose([
 data = ImageFolder(root='./modeling/data', transform=transform)
 model = SimpleCNN()
 #model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
+#model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
 criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
