@@ -7,6 +7,7 @@ https://www.youtube.com/watch?v=6U6-YJ1yjoQ
 
 ## Use cases
 
-The classifier has been set up to be executable on a mac or raspberry pi (haven't bought an infrared remote for the pi to control a TV yet), where it mutes the TV/laptop when advertisements are on.
+The classifier has been set up to be executable on a mac [Link to Directory](./mac_inference)
+or raspberry pi [Link to Directory](./pi_inference) (haven't bought an infrared remote for the pi to control a TV yet), where it mutes the TV/laptop when advertisements are on.
 
 ## Demos
