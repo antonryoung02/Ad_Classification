@@ -1,4 +1,4 @@
-## Mac Inference
+# Mac Inference
 
 This directory contains the files necessary to run inference on an apple laptop.
 
