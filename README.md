@@ -3,7 +3,7 @@ Note: Unfortunately I have not included the model weights due to it being traine
 
 ## Motivation
 
-(https://www.youtube.com/watch?v=6U6-YJ1yjoQ)
+https://www.youtube.com/watch?v=6U6-YJ1yjoQ
 
 ## Use cases
 
