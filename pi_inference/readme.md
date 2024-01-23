@@ -26,7 +26,7 @@ This directory contains all files necessary to run the CNN on a raspberry pi.
 
 Make sure libcamera module is activated, helpful setup tutorial here: https://www.youtube.com/watch?v=Z8cs1cRrc5A&t=602
 
-- Navigate to `raspberry_pi_advertisement`
+- Navigate to `pi_inference`
 - Run `./classify_script.sh`
 
 Cancel script execution to end inference
