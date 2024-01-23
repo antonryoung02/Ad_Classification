@@ -6,15 +6,19 @@ from torchvision import transforms
 from PIL import Image
 from models import SimpleCNN
 
+
 def preprocess_image(image_path, dimensions):
     """Transforms to fit model input expectations"""
     width, height = dimensions
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-    ])
-    image = Image.open(image_path).resize((width, height)).convert('RGB')
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+        ]
+    )
+    image = Image.open(image_path).resize((width, height)).convert("RGB")
     transformed_image = transform(image).unsqueeze(0)
     return transformed_image
+
 
 def run_inference(model, record_data, image_path):
     """>0.5 predicts advertisement, <0.5 predicts hockey
@@ -38,13 +42,14 @@ def run_inference(model, record_data, image_path):
             shutil.move(image_path, new_path)
         else:
             os.remove(image_path)
-
+    print(probability)
     return probability
-        
-def main(): 
+
+
+def main():
     model = SimpleCNN().load_model_checkpoint(os.environ["MODEL_CHECKPOINT_PATH"])
     image_path = os.environ["IMAGE_PATH"]
-    record_data = True # Set to True for data collection
+    record_data = False  # Set to True for data collection
 
     while os.path.exists("./classify_script_running"):
         if os.path.exists(image_path):
@@ -57,6 +62,7 @@ def main():
 
             with open("./ad_signal.txt", "w") as file:
                 file.write(prediction)
+
 
 if __name__ == "__main__":
     main()

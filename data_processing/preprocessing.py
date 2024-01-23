@@ -2,7 +2,13 @@ import os
 from PIL import Image
 from data_augmentation import apply_augmentations
 
-def preprocess_data(input_dir:str, output_dir:str, augment_input:bool=True, dimensions:tuple=(320,320)) -> None:
+
+def preprocess_data(
+    input_dir: str,
+    output_dir: str,
+    augment_input: bool = True,
+    dimensions: tuple = (320, 320),
+) -> None:
     """
     Transforms all .png files to desired specifications using preprocess_image
     and apply_augmentations
@@ -16,23 +22,27 @@ def preprocess_data(input_dir:str, output_dir:str, augment_input:bool=True, dime
         return
 
     for filename in os.listdir(input_dir):
-        if filename.lower().endswith('.png'):
+        if filename.lower().endswith(".png"):
             image_path = os.path.join(input_dir, filename)
             image = Image.open(image_path)
             processed_image = preprocess_image(image, dimensions)
             if augment_input:
                 apply_augmentations(processed_image, output_dir, filename)
             else:
-                original_output_path = os.path.join(output_dir, 'original_' + filename)
+                original_output_path = os.path.join(output_dir, "original_" + filename)
                 processed_image.save(original_output_path)
 
-def preprocess_image(image:Image, dimensions:tuple) -> Image:
+    print("finished preprocessing data")
+
+
+def preprocess_image(image: Image, dimensions: tuple) -> Image:
     """
     Converts an Image object to size / #channels compatible with the CNN
     """
     width, height = dimensions
     resized_image = image.resize((width, height))
     return resized_image.convert("RGB")
+
 
 def clear_directory(directory):
     """Clears output directory for test reusability"""
@@ -43,4 +53,4 @@ def clear_directory(directory):
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)
         except Exception as e:
-            print(f'Error: {e}')
+            print(f"Error: {e}")
