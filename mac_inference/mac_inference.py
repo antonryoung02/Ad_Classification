@@ -55,7 +55,7 @@ def main():
         if os.path.exists(image_path):
             time.sleep(1)
             output = run_inference(model, record_data, image_path)
-            if output > 0.5:
+            if output > 0.9:
                 prediction = "True"
             else:
                 prediction = "False"

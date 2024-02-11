@@ -7,6 +7,7 @@ from run_model import RunModel
 import numpy as np
 import itertools
 import pandas as pd
+import copy
 
 
 def find_fc_layer_input_shape(model: nn.Sequential, input_shape: tuple):
@@ -46,10 +47,10 @@ def grid_search(
     hyperparameters_grid,
     model,
     criterion,
-    save_path="./modeling/grid_search_results.csv",
 ):
-    """Performs grid search over hyperparameters, saves results to csv"""
-    results = []
+    """Performs grid search over hyperparameters"""
+    best_model = None
+    best_model_auc = 0
 
     keys, values = zip(*hyperparameters_grid.items())
     hyperparameter_combinations = [
@@ -58,15 +59,19 @@ def grid_search(
 
     for hyperparameters in hyperparameter_combinations:
         print(f"Testing hyperparameters: {hyperparameters}")
-        cv_results = k_fold_cross_validation(data, k, hyperparameters, model, criterion)
-        results.append({**cv_results, **hyperparameters})
+        cv_results, run_model = k_fold_cross_validation(
+            data, k, hyperparameters, model, criterion
+        )
+        current_auc = run_model.get_precision_recall_auc()
+        print(f"Results: {cv_results}")
 
-    results_df = pd.DataFrame(results)
-    results_df.to_csv(save_path, index=False)
-    best_hyperparameters = results_df.loc[results_df["val_loss"].idxmin()].to_dict()
+        if current_auc > best_model_auc:
+            best_model_auc = current_auc
+            best_model = run_model
+            print(f"New best model found. PR AUC: {best_model_auc}")
+        print("---------------------")
 
-    print(f"Best hyperparameters: {best_hyperparameters}")
-    return best_hyperparameters
+    return best_model
 
 
 def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
@@ -80,12 +85,13 @@ def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
     }
 
     indices = torch.randperm(len(data)).tolist()
-    kf = KFold(n_splits=k, shuffle=False)
+    kf = KFold(n_splits=k, shuffle=True, random_state=123)
 
     for train_idx, val_idx in kf.split(indices):
         run_model = train_fold(
             indices, train_idx, val_idx, data, model, criterion, hyperparameters
         )
+        run_model.get_precision_recall_auc()
 
         scores["train_loss"].append(run_model.train_losses[-1])
         scores["val_loss"].append(run_model.val_losses[-1])
@@ -97,7 +103,7 @@ def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
         "val_loss": np.mean(scores["val_loss"]),
         "val_precision": np.mean(scores["val_precision"]),
         "val_recall": np.mean(scores["val_recall"]),
-    }
+    }, run_model
 
 
 def train_fold(indices, train_idx, val_idx, data, model, criterion, hyperparameters):
@@ -106,6 +112,7 @@ def train_fold(indices, train_idx, val_idx, data, model, criterion, hyperparamet
     num_epochs = hyperparameters["num_epochs"]
     optimizer = hyperparameters["optimizer"]
     learning_rate = hyperparameters["learning_rate"]
+    weight_decay = hyperparameters["weight_decay"]
 
     train_subset = Subset(data, [indices[i] for i in train_idx])
     val_subset = Subset(data, [indices[i] for i in val_idx])
@@ -113,9 +120,10 @@ def train_fold(indices, train_idx, val_idx, data, model, criterion, hyperparamet
     train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
 
-    current_model = model()
+    current_model = copy.deepcopy(model)
+    # current_model = model
     current_optimizer = optimizer(
-        current_model.parameters(), lr=learning_rate
+        current_model.parameters(), lr=learning_rate, weight_decay=weight_decay
     )  # Have to reinitialize optimizer with new model
 
     run_model = RunModel(

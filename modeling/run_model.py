@@ -3,11 +3,12 @@ import torch.nn as nn
 from torchvision.datasets import ImageFolder
 from torch.utils.data import random_split, DataLoader
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, auc
 from tqdm import tqdm
 from typing import Tuple
 from torchvision import transforms
 from PIL import Image
+import numpy as np
 
 
 class RunModel:
@@ -15,7 +16,6 @@ class RunModel:
 
     def __init__(
         self,
-        data: ImageFolder,
         model: nn.Module,
         criterion,
         optimizer,
@@ -30,7 +30,6 @@ class RunModel:
         param train_proportion: Size of training set
         """
 
-        self.data = data
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
@@ -68,8 +67,8 @@ class RunModel:
 
         return train_loss / len(self.train_loader)
 
-    def validate(self) -> Tuple[float, float, float]:
-        """Calculates validation metrics. Called at each epoch in model training if validation set exists"""
+    def validate(self, threshold=0.5) -> Tuple[float, float, float]:
+        """Calculates validation metrics. Called at each epoch in model training if validation set exists."""
         self.model.eval()
         val_loss = 0
         all_outputs = []
@@ -84,11 +83,11 @@ class RunModel:
                 loss = self.criterion(outputs, labels)
                 val_loss += loss.item()
 
-                predicted = torch.sigmoid(outputs).round()
+                predicted = (torch.sigmoid(outputs) > threshold).float()
                 all_outputs.extend(predicted.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        precision = precision_score(all_labels, all_outputs)
+        precision = precision_score(all_labels, all_outputs, zero_division=0)
         recall = recall_score(all_labels, all_outputs)
         avg_val_loss = val_loss / len(self.val_loader)
 
@@ -109,6 +108,7 @@ class RunModel:
                 self.val_precisions.append(precision)
                 self.val_recalls.append(recall)
             else:
+                print("Warning, val loader missing!")
                 val_loss, precision, recall = None, None, None
 
             epoch_progress.set_description(f"Epoch {epoch}/{num_epochs}")
@@ -173,3 +173,23 @@ class RunModel:
 
         plt.tight_layout()
         plt.show()
+
+    def get_precision_recall_auc(self):
+        threshold = 0.05
+        precisions = []
+        recalls = []
+        while threshold < 1:
+            l, p, r = self.validate(threshold)
+            precisions.append(p)
+            recalls.append(r)
+            threshold += 0.05
+
+        recalls, precisions = zip(*sorted(zip(recalls, precisions)))
+
+        plt.scatter(recalls, precisions)
+        plt.xlabel("recall")
+        plt.ylabel("precision")
+        plt.show()
+
+        precision_recall_auc = auc(recalls, precisions)
+        return precision_recall_auc
