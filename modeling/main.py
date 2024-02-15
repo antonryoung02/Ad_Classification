@@ -29,18 +29,20 @@ model = SimpleCNN()
 criterion = nn.BCEWithLogitsLoss()
 # optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 hyperparameters = {
-    "batch_size": [32],
-    "num_epochs": [4],
+    "batch_size": [32, 64],
+    "num_epochs": [10, 15, 20],
     "optimizer": [optim.Adam],
-    "learning_rate": [0.001],
-    "weight_decay": [0.01],
+    "learning_rate": [0.01, 0.001, 0.0001],
+    "weight_decay": [0.01, 0.001, 0.0001],  # 245 trains
 }
-best_model = grid_search(data, 3, hyperparameters, model, criterion)
+k = 5
+
+best_model = grid_search(data, k, hyperparameters, model, criterion)
 best_model.save("./modeling/grid_best_checkpoint.pth")
 
-best_model.inference(
-    "./modeling/data/data_neg/add_random_filter_20240108_172033_image.png"
-)
+# best_model.inference(
+#     "./modeling/data/data_neg/add_random_filter_20240108_172033_image.png"
+# )
 best_model.plot_curves()
 # train_loader = None  # todo fix
 # val_loader = None

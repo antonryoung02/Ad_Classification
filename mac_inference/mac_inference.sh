@@ -11,12 +11,11 @@ trap "rm -f ./classify_script_running" EXIT
 python ./mac_inference.py &
 
 while true; do
-    echo "Capturing screenshot: $IMAGE_PATH"
  
     screencapture "$IMAGE_PATH"
 
     if [ $? -eq 0 ]; then
-        echo "Screenshot captured successfully"
+        echo "----------------------------"
     else 
         echo "Failed to capture screenshot"
     fi
@@ -34,13 +33,13 @@ while true; do
 
         #Rolling average
         sum=$((${ad_signal_history[0]} + ${ad_signal_history[1]} + ${ad_signal_history[2]}))
-        average=$(echo "$sum / 3" | bc -l)
-        echo "$average"
+        prediction=$(echo "$sum / 3" | bc -l)
+        #prediction="${ad_signal_history[0]}"
 
-        if (( $(echo "$average > 0.5" | bc -l) )); then
-            osascript -e "set volume output muted true"
+        if (( $(echo "$prediction > 0.5" | bc -l) )); then
+            osascript -e 'set volume output muted true'
         else
-            osascript -e "set volume output muted false"
+            osascript -e 'set volume output muted false'
         fi
     else
         echo "Ad signal file not found."

@@ -20,7 +20,7 @@ def preprocess_image(image_path, dimensions):
     return transformed_image
 
 
-def run_inference(model, record_data, image_path):
+def run_inference(model, device, record_data, image_path):
     """>0.5 predicts advertisement, <0.5 predicts hockey
 
     param model: torch.nn.Module pytorch model
@@ -47,15 +47,18 @@ def run_inference(model, record_data, image_path):
 
 
 def main():
-    model = SimpleCNN().load_model_checkpoint(os.environ["MODEL_CHECKPOINT_PATH"])
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = SimpleCNN().load_model_checkpoint(
+        os.environ["MODEL_CHECKPOINT_PATH"], map_location=device
+    )
     image_path = os.environ["IMAGE_PATH"]
     record_data = False  # Set to True for data collection
 
     while os.path.exists("./classify_script_running"):
         if os.path.exists(image_path):
             time.sleep(1)
-            output = run_inference(model, record_data, image_path)
-            if output > 0.9:
+            output = run_inference(model, device, record_data, image_path)
+            if output > 0.5:
                 prediction = "True"
             else:
                 prediction = "False"

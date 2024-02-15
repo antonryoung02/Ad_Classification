@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
-from torchvision.datasets import ImageFolder
-from torch.utils.data import random_split, DataLoader
+
+from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_score, recall_score, auc
+from sklearn.metrics import precision_score, recall_score, precision_recall_curve, auc
+
 from tqdm import tqdm
 from typing import Tuple
 from torchvision import transforms
@@ -80,7 +81,9 @@ class RunModel:
                 outputs = self.model(inputs)
                 labels = labels.unsqueeze(1).type_as(outputs)
 
-                loss = self.criterion(outputs, labels)
+                loss = self.criterion(
+                    outputs, labels
+                )  # + l1_regularization = lambda1 * torch.norm(all_linear1_params, 1)
                 val_loss += loss.item()
 
                 predicted = (torch.sigmoid(outputs) > threshold).float()
@@ -96,7 +99,10 @@ class RunModel:
     def run(self, num_epochs: int):
         """Trains the model to desired threshold(s)"""
         epoch_progress = tqdm(
-            range(1, num_epochs + 1), desc="Overall Epoch Progress", unit="epoch"
+            range(1, num_epochs + 1),
+            desc="Overall Epoch Progress",
+            unit="epoch",
+            leave=False,
         )
 
         for epoch in epoch_progress:
@@ -172,24 +178,29 @@ class RunModel:
         plt.legend()
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        plt.savefig("plotcurves.png")
 
     def get_precision_recall_auc(self):
-        threshold = 0.05
-        precisions = []
-        recalls = []
-        while threshold < 1:
-            l, p, r = self.validate(threshold)
-            precisions.append(p)
-            recalls.append(r)
-            threshold += 0.05
+        """Computes the AUC of the PR curve"""
+        self.model.eval()
 
-        recalls, precisions = zip(*sorted(zip(recalls, precisions)))
+        true_labels = []
+        predictions = []
 
-        plt.scatter(recalls, precisions)
-        plt.xlabel("recall")
-        plt.ylabel("precision")
-        plt.show()
+        with torch.no_grad():
+            for inputs, labels in self.val_loader:
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+                outputs = self.model(inputs)
+                probs = torch.sigmoid(outputs).cpu().numpy()
+                predictions.extend(probs.flatten())
+                true_labels.extend(labels.cpu().numpy())
 
-        precision_recall_auc = auc(recalls, precisions)
-        return precision_recall_auc
+        true_labels = np.array(true_labels)
+        predictions = np.array(predictions)
+
+        precision, recall, thresholds = precision_recall_curve(true_labels, predictions)
+        pr_auc = auc(recall, precision)
+
+        print(f"PR AUC: {pr_auc}")
+        return pr_auc

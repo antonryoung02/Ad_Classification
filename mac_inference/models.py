@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 
+
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
@@ -19,8 +20,8 @@ class SimpleCNN(nn.Module):
     def forward(self, x):
         """Performs forward propogation"""
         return self.network(x)
-    
-    def load_model_checkpoint(self, file_path:str) -> nn.Module:
+
+    def load_model_checkpoint(self, file_path: str, map_location) -> nn.Module:
         """Loads weights of pretrained model"""
-        self.load_state_dict(torch.load(file_path))
+        self.load_state_dict(torch.load(file_path, map_location))
         return self

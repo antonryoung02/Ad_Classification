@@ -25,22 +25,8 @@ def find_fc_layer_input_shape(model: nn.Sequential, input_shape: tuple):
     return dummy_input.shape[1:]
 
 
-# is this needed anymore?
-# def split_dataset(
-#     train_proportion: float, data, batch_size=32
-# ) -> Tuple[DataLoader, DataLoader]:
-#     """Helper function called during init that splits all data into train/val"""
-#     total_samples = len(data)
-#     train_size = int(total_samples * train_proportion)
-#     val_size = total_samples - train_size
-#     train_dataset, val_dataset = random_split(data, [train_size, val_size])
-#     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-#     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-#     return train_loader, val_loader
-
-
 # Create function that calls k_fold for each hyperparameter combination
-# Save scores for each, retrain best combination on all data
+#  scores for each, retrain best combination on all data
 def grid_search(
     data,
     k,
@@ -51,6 +37,7 @@ def grid_search(
     """Performs grid search over hyperparameters"""
     best_model = None
     best_model_auc = 0
+    iteration = 0
 
     keys, values = zip(*hyperparameters_grid.items())
     hyperparameter_combinations = [
@@ -58,26 +45,32 @@ def grid_search(
     ]
 
     for hyperparameters in hyperparameter_combinations:
-        print(f"Testing hyperparameters: {hyperparameters}")
+        print(f"Iteration {iteration}. Testing hyperparameters: {hyperparameters}")
         cv_results, run_model = k_fold_cross_validation(
             data, k, hyperparameters, model, criterion
         )
-        current_auc = run_model.get_precision_recall_auc()
         print(f"Results: {cv_results}")
+        current_auc = cv_results["auc"]
 
         if current_auc > best_model_auc:
             best_model_auc = current_auc
             best_model = run_model
             print(f"New best model found. PR AUC: {best_model_auc}")
-        print("---------------------")
+            with open("best_hyperparameters.txt", "w") as file:
+                file.write(str(hyperparameters))
+        else:
+            print(f"PR AUC: {best_model_auc}")
+        iteration += 1
+
+        print("------------------------")
 
     return best_model
 
 
 def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
     """Performs k-fold cross validation, records performance scores"""
-
     scores = {
+        "auc": [],
         "train_loss": [],
         "val_loss": [],
         "val_precision": [],
@@ -92,7 +85,7 @@ def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
             indices, train_idx, val_idx, data, model, criterion, hyperparameters
         )
         run_model.get_precision_recall_auc()
-
+        scores["auc"].append(run_model.get_precision_recall_auc())
         scores["train_loss"].append(run_model.train_losses[-1])
         scores["val_loss"].append(run_model.val_losses[-1])
         scores["val_precision"].append(run_model.val_precisions[-1])
@@ -103,6 +96,7 @@ def k_fold_cross_validation(data, k, hyperparameters, model, criterion):
         "val_loss": np.mean(scores["val_loss"]),
         "val_precision": np.mean(scores["val_precision"]),
         "val_recall": np.mean(scores["val_recall"]),
+        "auc": np.mean(scores["auc"]),
     }, run_model
 
 
@@ -126,7 +120,7 @@ def train_fold(indices, train_idx, val_idx, data, model, criterion, hyperparamet
         current_model.parameters(), lr=learning_rate, weight_decay=weight_decay
     )  # Have to reinitialize optimizer with new model
 
-    run_model = RunModel(
+    run_model = RunModel(  # could feed lambda term to model for l1
         current_model, criterion, current_optimizer, train_loader, val_loader
     )
     run_model.run(num_epochs)
