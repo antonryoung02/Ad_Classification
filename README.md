@@ -1,4 +1,7 @@
 # Ad_Classification
+
+This repository contains the code used to collect data, preprocess data, train a pytorch model, and make predictions on new images. Advertisements are distracting, and the objective of this project is to mute these advertisements when they come on and only unmute when the game returns.
+
 Note: Unfortunately I have not included the model weights due to it being trained on copyrighted material
 
 ## Motivation
