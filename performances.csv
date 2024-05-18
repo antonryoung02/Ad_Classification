@@ -1,0 +1,2 @@
+accuracy,precision,recall,pr_auc,f1,name,codename
+0.8,0.2,0.2,0.5166666666666666,0.2,batch_size128_num_epochs20_lr0.01_weight_decay0.01_networkConv2d_ReLU_Conv2d_ReLU_MaxPool2d_Conv2d_ReLU_Conv2d_ReLU_MaxPool2d_Flatten_Linear_Linear,model 1

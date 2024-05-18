@@ -1,4 +1,5 @@
 import os
+import PIL
 from PIL import Image
 from data_augmentation import apply_augmentations
 
@@ -7,7 +8,7 @@ def preprocess_data(
     input_dir: str,
     output_dir: str,
     augment_input: bool = True,
-    dimensions: tuple = (320, 320),
+    dimensions: tuple = (224, 224),
 ) -> None:
     """
     Transforms all .png files to desired specifications using preprocess_image
@@ -19,20 +20,25 @@ def preprocess_data(
     param dimensions: (width, height) in pixels of transformed image size
     """
     if not os.path.exists(input_dir) or not os.path.exists(output_dir):
+        print("Input or output directory does not exist.")
         return
 
     for filename in os.listdir(input_dir):
         if filename.lower().endswith(".png"):
             image_path = os.path.join(input_dir, filename)
-            image = Image.open(image_path)
-            processed_image = preprocess_image(image, dimensions)
-            if augment_input:
-                apply_augmentations(processed_image, output_dir, filename)
+            if os.path.exists(image_path):
+                try:
+                    image = Image.open(image_path)
+                    processed_image = preprocess_image(image, dimensions)
+                    if augment_input:
+                        apply_augmentations(processed_image, output_dir, filename)
+                    else:
+                        original_output_path = os.path.join(output_dir, "original_" + filename)
+                        processed_image.save(original_output_path)
+                except (PIL.UnidentifiedImageError, OSError) as e:
+                    print(f"Error processing {image_path}: {e}")
             else:
-                original_output_path = os.path.join(output_dir, "original_" + filename)
-                processed_image.save(original_output_path)
-
-    print("finished preprocessing data")
+                print(f"File not found: {image_path}")
 
 
 def preprocess_image(image: Image, dimensions: tuple) -> Image:

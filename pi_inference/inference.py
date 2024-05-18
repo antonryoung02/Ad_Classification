@@ -51,7 +51,7 @@ def main():
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
             nn.Flatten(),
         )
-    model = SimpleCNN(network).load_model_checkpoint(os.environ["MODEL_CHECKPOINT_PATH"])
+    model = torch.load(os.environ["MODEL_CHECKPOINT_PATH"])
     image_path = os.environ["IMAGE_PATH"]
     record_data = False # Set to True for data collection
 

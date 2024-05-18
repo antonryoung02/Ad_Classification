@@ -8,7 +8,6 @@ import numpy as np
 import itertools
 import pandas as pd
 import copy
-from torch.utils.tensorboard import SummaryWriter
 from performance_tracker import PerformanceTracker
 
 
@@ -23,37 +22,27 @@ def grid_search(
     optimizer
 ):
     """Performs grid search over hyperparameters"""
-    best_model = None
-    best_model_auc = 0
-
-    keys, values = zip(*hyperparameters_grid.items())
-    hyperparameter_combinations = [
-        dict(zip(keys, v)) for v in itertools.product(*values)
-    ]
+    results = []
+    hyperparameter_combinations = get_hparam_combinations(hyperparameters_grid)
 
     for iteration, hyperparameters in enumerate(hyperparameter_combinations):
-        print(f"Iteration {iteration}. Testing hyperparameters: {hyperparameters}")
-        run_model = k_fold_cross_validation(
-            data=data, k=k, model=model, criterion=criterion, optimizer=optimizer, hyperparameters=hyperparameters
+        performance_tracker = PerformanceTracker()
+        k_fold_cross_validation(
+            data=data, k=k, model=model, criterion=criterion, optimizer=optimizer, hyperparameters=hyperparameters, performance_tracker=performance_tracker
         )
-        # print(f"Results: {cv_results}")
-        # current_auc = cv_results["auc"]
+        metrics = performance_tracker.get_avg_metrics()
 
-        # if current_auc > best_model_auc:
-        #     best_model_auc = current_auc
-        #     best_model = run_model
-        #     print(f"New best model found. PR AUC: {best_model_auc}")
-        #     with open("best_hyperparameters.txt", "w") as file:
-        #         file.write(str(hyperparameters))
-        # else:
-        #     print(f"PR AUC: {best_model_auc}")
+        hparam_name = get_hparam_model_name(hyperparameters)
+        metrics["name"] = hparam_name
+        metrics["codename"] = f"model {iteration + 1}"
 
-        # print("------------------------")
+        results.append(metrics)
 
-    return best_model
+    performance_dataframe = pd.DataFrame(results)
+    return performance_dataframe
 
 
-def k_fold_cross_validation(data, k, model, criterion, optimizer, hyperparameters):
+def k_fold_cross_validation(data, k, model, criterion, optimizer, hyperparameters, performance_tracker):
     """Performs k-fold cross validation, records performance scores"""
 
     indices = torch.randperm(len(data)).tolist()
@@ -62,21 +51,19 @@ def k_fold_cross_validation(data, k, model, criterion, optimizer, hyperparameter
 
     for train_idx, val_idx in kf.split(indices):
         run_model = train_fold(
-            indices=indices, train_idx=train_idx, val_idx=val_idx, data=data, model=model, criterion=criterion, optimizer=optimizer, hyperparameters=hyperparameters
+            indices=indices, train_idx=train_idx, val_idx=val_idx, data=data, model=model, criterion=criterion, optimizer=optimizer, hyperparameters=hyperparameters, performance_tracker=performance_tracker
         )
 
     return run_model
 
 
-def train_fold(indices, train_idx, val_idx, data, model, criterion, optimizer, hyperparameters):
+def train_fold(indices, train_idx, val_idx, data, model, criterion, optimizer, hyperparameters, performance_tracker):
     """Helper function that trains a single fold of k-fold cross validation"""
     model_params = get_model_params(hyperparameters)
     data_loader_params = get_data_loader_params(hyperparameters)
     training_params = get_training_params(hyperparameters)
     optimizer_params = get_optimizer_params(hyperparameters)
     criterion_params = get_criterion_params(hyperparameters)
-
-    #writer = SummaryWriter(comment=get_cv_name(hyperparameters))
 
     train_subset = Subset(data, [indices[i] for i in train_idx])
     val_subset = Subset(data, [indices[i] for i in val_idx])
@@ -91,7 +78,6 @@ def train_fold(indices, train_idx, val_idx, data, model, criterion, optimizer, h
     ) 
     current_criterion = criterion(**criterion_params)
 
-    performance_tracker = PerformanceTracker()
     run_model = RunModel(  # could feed lambda term to model for l1
         current_model, current_criterion, current_optimizer, performance_tracker, train_loader, val_loader
     )
@@ -132,3 +118,19 @@ def get_optimizer_params(hparams):
 def get_criterion_params(hparams):
     keys = []
     return {key: hparams[key] for key in keys if key in hparams}
+
+def get_layer_names(network):
+    return [layer.__class__.__name__ for layer in network]
+
+def get_hparam_model_name(hparams):
+    parts = [f"{key}{value}" for key, value in hparams.items() if key != "network"]
+    if "network" in hparams:
+        layer_names = get_layer_names(hparams["network"])
+        parts.append(f"network{'_'.join(layer_names)}")
+    return "_".join(parts)
+
+def get_hparam_combinations(hyperparameters_grid):
+    keys, values = zip(*hyperparameters_grid.items())
+    return [
+        dict(zip(keys, v)) for v in itertools.product(*values)
+    ]

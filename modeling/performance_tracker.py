@@ -1,36 +1,24 @@
 import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, average_precision_score
+import numpy as np
 
 class PerformanceTracker:
     """Stores model predictions and provides diagnostic/performance plots"""
     def __init__(self):
-        self.train_losses = []
-        self.val_losses = []
-        self.val_precisions = []
-        self.val_recalls = []
+        self.metrics = {"accuracy":[], "precision":[], "recall":[], "pr_auc":[], "f1":[]}
+        self.threshold = 0.5
 
-    def plot_curves(self):
-        """Plots and displays losses, precision/recall"""
-        epochs = range(1, len(self.train_losses) + 1)
+    def record_metrics(self, y_true, y_prob):
+        y_pred = y_prob > self.threshold
+        self.metrics['accuracy'].append(accuracy_score(y_true, y_pred))
+        self.metrics['precision'].append(precision_score(y_true, y_pred, average='binary'))
+        self.metrics['recall'].append(recall_score(y_true, y_pred, average='binary'))
+        self.metrics['pr_auc'].append(average_precision_score(y_true, y_prob))
+        self.metrics['f1'].append(f1_score(y_true, y_pred, average='binary'))
 
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 2, 1)
-        plt.plot(epochs, self.train_losses, label="Training Loss")
-        plt.plot(epochs, self.val_losses, label="Validation Loss")
-        plt.title("Training and Validation Loss")
-        plt.xlabel("Epochs")
-        plt.ylabel("Loss")
-        plt.legend()
-
-        plt.subplot(1, 2, 2)
-        plt.plot(epochs, self.val_precisions, label="Precision")
-        plt.plot(epochs, self.val_recalls, label="Recall")
-        plt.title("Precision and Recall")
-        plt.xlabel("Epochs")
-        plt.ylabel("Score")
-        plt.legend()
-
-        plt.tight_layout()
-        plt.savefig("plotcurves.png")
+    def get_avg_metrics(self):
+        avg_metrics = {key: np.mean(values) for key, values in self.metrics.items()}
+        return avg_metrics
 
         
 

@@ -50,6 +50,7 @@ class RunModel:
         """Performs 1 training step. Called at each epoch in model training"""
         self.model.train()
         train_loss = 0
+        total_samples = 0
         train_loader = tqdm(self.train_loader, desc="Training", leave=False)
 
         for inputs, labels in train_loader:
@@ -64,16 +65,17 @@ class RunModel:
             self.optimizer.step()
 
             train_loss += loss.item()
+            total_samples += len(labels)
             train_loader.set_description(f"Training (Loss: {loss.item():.4f})")
 
-        return train_loss / len(self.train_loader)
+        return train_loss / total_samples
 
-    def validate_epoch(self, threshold=0.5) -> Tuple[float, float, float]:
-        """Calculates validation metrics. Called at each epoch in model training if validation set exists."""
+    def validate_epoch(self) -> Tuple[np.array, np.array]:
+        """Calculates validation predictions. Called at each epoch in model training if validation set exists."""
         self.model.eval()
-        val_loss = 0
-        all_outputs = []
-        all_labels = []
+        all_outputs = np.array([])
+        all_labels = np.array([])
+
         with torch.no_grad():
             for inputs, labels in self.val_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -81,20 +83,10 @@ class RunModel:
                 outputs = self.model(inputs)
                 labels = labels.unsqueeze(1).type_as(outputs)
 
-                loss = self.criterion(
-                    outputs, labels
-                )  # + l1_regularization = lambda1 * torch.norm(all_linear1_params, 1)
-                val_loss += loss.item()
+                all_outputs = np.concatenate((all_outputs, outputs.cpu().numpy().flatten()))
+                all_labels = np.concatenate((all_labels, labels.cpu().numpy().flatten()))
 
-                predicted = (torch.sigmoid(outputs) > threshold).float()
-                all_outputs.extend(predicted.cpu().numpy())
-                all_labels.extend(labels.cpu().numpy())
-
-        precision = precision_score(all_labels, all_outputs, zero_division=0)
-        recall = recall_score(all_labels, all_outputs)
-        avg_val_loss = val_loss / len(self.val_loader)
-
-        return avg_val_loss, precision, recall
+        return all_labels, all_outputs
 
     def run(self, num_epochs: int):
         """Trains the model to desired threshold(s)"""
@@ -107,23 +99,17 @@ class RunModel:
 
         for epoch in epoch_progress:
             train_loss = self.train_epoch()
-            self.performance_tracker.train_losses.append(train_loss)
-            if self.val_loader:
-                val_loss, precision, recall = self.validate_epoch()
-                self.performance_tracker.val_losses.append(val_loss)
-                self.performance_tracker.val_precisions.append(precision)
-                self.performance_tracker.val_recalls.append(recall)
-            else:
-                print("Warning, val loader missing!")
-                val_loss, precision, recall = None, None, None
 
             epoch_progress.set_description(f"Epoch {epoch}/{num_epochs}")
             epoch_progress.set_postfix(
-                Train_Loss=train_loss,
-                Val_Loss=val_loss,
-                Precision=precision,
-                Recall=recall,
+                Train_Loss=train_loss
             )
+        
+        if self.val_loader:
+            y_true, y_prob = self.validate_epoch()
+            self.performance_tracker.record_metrics(y_true, y_prob)
+
+        return self.model
 
     def inference(self, image_path):
         """Performs inference on a single image and displays the result."""
