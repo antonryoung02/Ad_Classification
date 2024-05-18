@@ -18,37 +18,34 @@ transform = transforms.Compose(
 data = ImageFolder(root="./modeling/data", transform=transform)
 
 # Only for testing!
-subset_size = 500
+subset_size = 100
 indices = torch.randperm(len(data)).tolist()[:subset_size]
 data = Subset(data, indices)
 # --------------------------
 
-model = SimpleCNN()
-# model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
-# model.load_model_checkpoint('./modeling/simple_cnn_checkpoint.pth')
-criterion = nn.BCEWithLogitsLoss()
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+model = SimpleCNN
+
+criterion = nn.BCEWithLogitsLoss
+optimizer = optim.Adam
+
 hyperparameters = {
-    "batch_size": [32, 64],
-    "num_epochs": [10, 15, 20],
-    "optimizer": [optim.Adam],
-    "learning_rate": [0.01, 0.001, 0.0001],
-    "weight_decay": [0.01, 0.001, 0.0001],  # 245 trains
+    "batch_size": [128],
+    "num_epochs": [20],
+    "network": [nn.Sequential(            
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+            nn.Flatten())],
+    "lr": [0.01],
+    "weight_decay": [0.01],  # L2 Reg
 }
 k = 5
 
-best_model = grid_search(data, k, hyperparameters, model, criterion)
-best_model.save("./modeling/grid_best_checkpoint.pth")
+best_model = grid_search(data, k, hyperparameters, model, criterion, optimizer)
+# best_model.save("grid_best_checkpoint.pth")
 
-# best_model.inference(
-#     "./modeling/data/data_neg/add_random_filter_20240108_172033_image.png"
-# )
-best_model.plot_curves()
-# train_loader = None  # todo fix
-# val_loader = None
-# run_model = RunModel(data, model, criterion, optimizer, train_loader, val_loader)
+# best_model.plot_curves()
 
-# run_model.run(num_epochs=12)  # set early stopping instead!
-# run_model.plot_curves()
-##run_model.save("./mac_inference/larger_cnn_checkpoint.pth")
-# run_model.save("./pi_inference/larger_cnn_checkpoint.pth")

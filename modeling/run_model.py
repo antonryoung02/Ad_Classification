@@ -11,15 +11,18 @@ from torchvision import transforms
 from PIL import Image
 import numpy as np
 
+from performance_tracker import PerformanceTracker
+
 
 class RunModel:
-    """Encapulates pytorch learning / performance functions."""
+    """Encapulates pytorch model learning functions."""
 
     def __init__(
         self,
         model: nn.Module,
         criterion,
         optimizer,
+        performance_tracker: PerformanceTracker,
         train_loader: DataLoader,
         val_loader: DataLoader = None,
     ):
@@ -28,7 +31,6 @@ class RunModel:
         param model: Model from models.py
         param criterion: Model loss criteria
         param optimizer: Model optimizer
-        param train_proportion: Size of training set
         """
 
         self.model = model
@@ -41,12 +43,10 @@ class RunModel:
         self.train_loader = train_loader
         self.val_loader = val_loader
 
-        self.train_losses = []
-        self.val_losses = []
-        self.val_precisions = []
-        self.val_recalls = []
+        self.performance_tracker = performance_tracker
 
-    def train(self) -> float:
+
+    def train_epoch(self) -> float:
         """Performs 1 training step. Called at each epoch in model training"""
         self.model.train()
         train_loss = 0
@@ -68,7 +68,7 @@ class RunModel:
 
         return train_loss / len(self.train_loader)
 
-    def validate(self, threshold=0.5) -> Tuple[float, float, float]:
+    def validate_epoch(self, threshold=0.5) -> Tuple[float, float, float]:
         """Calculates validation metrics. Called at each epoch in model training if validation set exists."""
         self.model.eval()
         val_loss = 0
@@ -106,13 +106,13 @@ class RunModel:
         )
 
         for epoch in epoch_progress:
-            train_loss = self.train()
-            self.train_losses.append(train_loss)
+            train_loss = self.train_epoch()
+            self.performance_tracker.train_losses.append(train_loss)
             if self.val_loader:
-                val_loss, precision, recall = self.validate()
-                self.val_losses.append(val_loss)
-                self.val_precisions.append(precision)
-                self.val_recalls.append(recall)
+                val_loss, precision, recall = self.validate_epoch()
+                self.performance_tracker.val_losses.append(val_loss)
+                self.performance_tracker.val_precisions.append(precision)
+                self.performance_tracker.val_recalls.append(recall)
             else:
                 print("Warning, val loader missing!")
                 val_loss, precision, recall = None, None, None
@@ -127,7 +127,6 @@ class RunModel:
 
     def inference(self, image_path):
         """Performs inference on a single image and displays the result."""
-
         transform = transforms.Compose(
             [
                 transforms.ToTensor(),
@@ -152,55 +151,3 @@ class RunModel:
         )
         plt.show()
 
-    def save(self, file_path: str = "./pi_inference"):
-        """Saves the model's state dictionary to output file. Default to raspberry pi directory"""
-        torch.save(self.model.state_dict(), file_path)
-
-    def plot_curves(self):
-        """Plots and displays losses, precision/recall"""
-        epochs = range(1, len(self.train_losses) + 1)
-
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 2, 1)
-        plt.plot(epochs, self.train_losses, label="Training Loss")
-        plt.plot(epochs, self.val_losses, label="Validation Loss")
-        plt.title("Training and Validation Loss")
-        plt.xlabel("Epochs")
-        plt.ylabel("Loss")
-        plt.legend()
-
-        plt.subplot(1, 2, 2)
-        plt.plot(epochs, self.val_precisions, label="Precision")
-        plt.plot(epochs, self.val_recalls, label="Recall")
-        plt.title("Precision and Recall")
-        plt.xlabel("Epochs")
-        plt.ylabel("Score")
-        plt.legend()
-
-        plt.tight_layout()
-        # plt.show()
-        plt.savefig("plotcurves.png")
-
-    def get_precision_recall_auc(self):
-        """Computes the AUC of the PR curve"""
-        self.model.eval()
-
-        true_labels = []
-        predictions = []
-
-        with torch.no_grad():
-            for inputs, labels in self.val_loader:
-                inputs, labels = inputs.to(self.device), labels.to(self.device)
-                outputs = self.model(inputs)
-                probs = torch.sigmoid(outputs).cpu().numpy()
-                predictions.extend(probs.flatten())
-                true_labels.extend(labels.cpu().numpy())
-
-        true_labels = np.array(true_labels)
-        predictions = np.array(predictions)
-
-        precision, recall, thresholds = precision_recall_curve(true_labels, predictions)
-        pr_auc = auc(recall, precision)
-
-        print(f"PR AUC: {pr_auc}")
-        return pr_auc

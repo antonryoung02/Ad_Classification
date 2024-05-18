@@ -5,8 +5,8 @@ import os
 
 def apply_augmentations(image, output_dir, filename) -> None:
     """Adds variations to the data by calling a set of random image-augmenting functions."""
-    if random.random() > 0.5: # Add noise borders to half of the images
-        image = add_border(image)
+    # if random.random() > 0.5: # Add noise borders to half of the images
+    #     image = add_border(image)
 
     original_output_path = os.path.join(output_dir, 'original_' + filename)
     image.save(original_output_path)

@@ -6,7 +6,7 @@ from torchvision import transforms
 from PIL import Image
 from models import SimpleCNN
 
-
+from torch import nn
 def preprocess_image(image_path, dimensions):
     """Transforms to fit model input expectations"""
     width, height = dimensions
@@ -27,7 +27,7 @@ def run_inference(model, device, record_data, image_path):
     param image_path: Path to image taken in classify_script.sh
     param record: Toggles data collection. True saves image to data directory
     """
-    image = preprocess_image(image_path, (320, 320))
+    image = preprocess_image(image_path, (224, 224))
     model.eval()
     with torch.no_grad():
         model_output = model(image)
@@ -48,9 +48,16 @@ def run_inference(model, device, record_data, image_path):
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SimpleCNN().load_model_checkpoint(
-        os.environ["MODEL_CHECKPOINT_PATH"], map_location=device
+    network = nn.Sequential(
+        nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+        nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+        nn.Flatten(),
     )
+    model = SimpleCNN(network, (224,224)).load_model_checkpoint(os.environ["MODEL_CHECKPOINT_PATH"])
     image_path = os.environ["IMAGE_PATH"]
     record_data = False  # Set to True for data collection
 

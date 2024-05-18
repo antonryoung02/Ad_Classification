@@ -18,6 +18,7 @@ seaborn = "^0.13.0"
 pylint = "^3.0.3"
 tqdm = "^4.66.1"
 opencv-python = "^4.8.1.78"
+tensorboard = "^2.16.2"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.27.1"
