@@ -28,6 +28,8 @@ Duplicate code
 
 ### May 2024
 
+I reduced image size to 224x224 and used a more standard architecture with 2 convolutional/relu layers followed by a max pooling. I added a second dense layer so that the network can learn a nonlinear transformation of the feature maps.
+
 My previous work ran a grid search and then immediately saved the best model weights of the model with the best AUC. Because classifiers have so many tradeoffs between metrics, I decided to add a `PerformanceTracker` class so that I can compare models later.
 
 Scores of the 5 best-performing models:
