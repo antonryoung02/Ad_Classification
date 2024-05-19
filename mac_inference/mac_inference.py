@@ -48,16 +48,8 @@ def run_inference(model, device, record_data, image_path):
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    network = nn.Sequential(
-        nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
-        nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
-        nn.Flatten(),
-    )
     model = torch.load(os.environ["MODEL_CHECKPOINT_PATH"])
+    print(model)
     image_path = os.environ["IMAGE_PATH"]
     record_data = False  # Set to True for data collection
 
@@ -65,14 +57,13 @@ def main():
         if os.path.exists(image_path):
             time.sleep(1)
             output = run_inference(model, device, record_data, image_path)
-            if output > 0.5:
+            if output > 0.4:
                 prediction = "True"
             else:
                 prediction = "False"
 
             with open("./ad_signal.txt", "w") as file:
                 file.write(prediction)
-
 
 if __name__ == "__main__":
     main()

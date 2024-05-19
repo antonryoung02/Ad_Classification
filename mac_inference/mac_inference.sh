@@ -15,7 +15,7 @@ while true; do
     screencapture "$IMAGE_PATH"
 
     if [ $? -eq 0 ]; then
-        echo "----------------------------"
+        echo "Screenshot saved to $IMAGE_PATH"
     else 
         echo "Failed to capture screenshot"
     fi

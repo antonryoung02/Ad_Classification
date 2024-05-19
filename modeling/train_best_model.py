@@ -31,24 +31,22 @@ performance_tracker = PerformanceTracker
 
 best_hyperparameters = {
     "batch_size": 128,
-    "num_epochs": 20,
+    "num_epochs": 51,
     "network":nn.Sequential(
         nn.Conv2d(3, 32, kernel_size=3, padding="same"),
         nn.ReLU(),
-        nn.Dropout2d(0.25), 
         nn.Conv2d(32, 32, kernel_size=3, padding="same"),
         nn.ReLU(),
         nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
         nn.Conv2d(32, 32, kernel_size=3),
         nn.ReLU(),
-        nn.Dropout2d(0.25),
         nn.Conv2d(32, 32, kernel_size=3),
         nn.ReLU(),
         nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
         nn.Flatten(),
     ),
-    "lr": 0.0001,
-    "weight_decay": 0.01,
+    "lr": 0.0005,
+    "weight_decay": 0.0001,
 }
 model_params = utils.get_model_params(best_hyperparameters)
 data_loader_params = utils.get_data_loader_params(best_hyperparameters)
