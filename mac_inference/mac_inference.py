@@ -4,9 +4,8 @@ import shutil
 import torch
 from torchvision import transforms
 from PIL import Image
-from models import SimpleCNN
-
 from torch import nn
+
 def preprocess_image(image_path, dimensions):
     """Transforms to fit model input expectations"""
     width, height = dimensions
@@ -49,7 +48,6 @@ def run_inference(model, device, record_data, image_path):
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = torch.load(os.environ["MODEL_CHECKPOINT_PATH"])
-    print(model)
     image_path = os.environ["IMAGE_PATH"]
     record_data = False  # Set to True for data collection
 

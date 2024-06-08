@@ -33,7 +33,7 @@ def preprocess_data(
                     if augment_input:
                         apply_augmentations(processed_image, output_dir, filename)
                     else:
-                        original_output_path = os.path.join(output_dir, "original_" + filename)
+                        original_output_path = os.path.join(output_dir, filename)
                         processed_image.save(original_output_path)
                 except (PIL.UnidentifiedImageError, OSError) as e:
                     print(f"Error processing {image_path}: {e}")

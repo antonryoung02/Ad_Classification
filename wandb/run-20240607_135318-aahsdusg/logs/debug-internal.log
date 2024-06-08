@@ -1,0 +1,192 @@
+2024-06-07 13:53:18,154 INFO    StreamThr :64955 [internal.py:wandb_internal():85] W&B internal server running at pid: 64955, started at: 2024-06-07 13:53:18.153894
+2024-06-07 13:53:18,155 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: status
+2024-06-07 13:53:18,164 INFO    WriterThread:64955 [datastore.py:open_for_write():87] open: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/run-aahsdusg.wandb
+2024-06-07 13:53:18,165 DEBUG   SenderThread:64955 [sender.py:send():378] send: header
+2024-06-07 13:53:18,187 DEBUG   SenderThread:64955 [sender.py:send():378] send: run
+2024-06-07 13:53:18,477 INFO    SenderThread:64955 [dir_watcher.py:__init__():211] watching files in: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files
+2024-06-07 13:53:18,477 INFO    SenderThread:64955 [sender.py:_start_run_threads():1123] run started: aahsdusg with start time 1717789998.155488
+2024-06-07 13:53:18,490 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: check_version
+2024-06-07 13:53:18,491 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: check_version
+2024-06-07 13:53:18,655 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: run_start
+2024-06-07 13:53:18,664 DEBUG   HandlerThread:64955 [system_info.py:__init__():26] System info init
+2024-06-07 13:53:18,664 DEBUG   HandlerThread:64955 [system_info.py:__init__():41] System info init done
+2024-06-07 13:53:18,665 INFO    HandlerThread:64955 [system_monitor.py:start():194] Starting system monitor
+2024-06-07 13:53:18,665 INFO    SystemMonitor:64955 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-06-07 13:53:18,665 INFO    HandlerThread:64955 [system_monitor.py:probe():214] Collecting system info
+2024-06-07 13:53:18,666 INFO    SystemMonitor:64955 [interfaces.py:start():188] Started cpu monitoring
+2024-06-07 13:53:18,666 INFO    SystemMonitor:64955 [interfaces.py:start():188] Started disk monitoring
+2024-06-07 13:53:18,666 INFO    SystemMonitor:64955 [interfaces.py:start():188] Started gpuapple monitoring
+2024-06-07 13:53:18,674 INFO    SystemMonitor:64955 [interfaces.py:start():188] Started memory monitoring
+2024-06-07 13:53:18,675 INFO    SystemMonitor:64955 [interfaces.py:start():188] Started network monitoring
+2024-06-07 13:53:18,776 ERROR   HandlerThread:64955 [gpu_apple.py:probe():176] GPU stats error: Command '['/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/bin/apple_gpu_stats', '--json']' died with <Signals.SIGTRAP: 5>.
+Traceback (most recent call last):
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/sdk/internal/system/assets/gpu_apple.py", line 164, in probe
+    subprocess.check_output(command, universal_newlines=True)
+  File "/Users/anton/miniconda3/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/miniconda3/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/bin/apple_gpu_stats', '--json']' died with <Signals.SIGTRAP: 5>.
+2024-06-07 13:53:18,778 DEBUG   HandlerThread:64955 [system_info.py:probe():150] Probing system
+2024-06-07 13:53:18,782 DEBUG   HandlerThread:64955 [system_info.py:_probe_git():135] Probing git
+2024-06-07 13:53:18,811 DEBUG   HandlerThread:64955 [system_info.py:_probe_git():143] Probing git done
+2024-06-07 13:53:18,811 DEBUG   HandlerThread:64955 [system_info.py:probe():198] Probing system done
+2024-06-07 13:53:18,811 DEBUG   HandlerThread:64955 [system_monitor.py:probe():223] {'os': 'macOS-14.3.1-arm64-arm-64bit', 'python': '3.11.5', 'heartbeatAt': '2024-06-07T19:53:18.778647', 'startedAt': '2024-06-07T19:53:18.144277', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py', 'codePathLocal': 'modeling/main.py', 'codePath': 'modeling/main.py', 'git': {'remote': 'https://github.com/antonryoung02/Ad_Classification.git', 'commit': '5d8549a0a8899132e29c7f40b3c2591252922db9'}, 'email': '89807629+antonryoung02@users.noreply.github.com', 'root': '/Users/anton/Downloads/Coding/Ad_Classification', 'host': 'Antons-MacBook-Air.local', 'username': 'anton', 'executable': '/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/bin/python', 'cpu_count': 8, 'cpu_count_logical': 8, 'disk': {'/': {'total': 228.27386474609375, 'used': 13.401458740234375}}, 'gpuapple': {'type': 'arm', 'vendor': 'Apple'}, 'memory': {'total': 8.0}}
+2024-06-07 13:53:18,811 INFO    HandlerThread:64955 [system_monitor.py:probe():224] Finished collecting system info
+2024-06-07 13:53:18,811 INFO    HandlerThread:64955 [system_monitor.py:probe():227] Publishing system info
+2024-06-07 13:53:18,811 INFO    HandlerThread:64955 [system_monitor.py:probe():229] Finished publishing system info
+2024-06-07 13:53:18,818 DEBUG   SenderThread:64955 [sender.py:send():378] send: files
+2024-06-07 13:53:18,818 INFO    SenderThread:64955 [sender.py:_save_file():1389] saving file wandb-metadata.json with policy now
+2024-06-07 13:53:18,865 ERROR   gpuapple  :64955 [gpu_apple.py:sample():110] GPU stats error: Command '['/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/bin/apple_gpu_stats', '--json']' died with <Signals.SIGTRAP: 5>.
+Traceback (most recent call last):
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/sdk/internal/system/assets/gpu_apple.py", line 64, in sample
+    subprocess.check_output(command, universal_newlines=True)
+  File "/Users/anton/miniconda3/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/miniconda3/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/wandb/bin/apple_gpu_stats', '--json']' died with <Signals.SIGTRAP: 5>.
+2024-06-07 13:53:18,885 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: python_packages
+2024-06-07 13:53:18,885 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: python_packages
+2024-06-07 13:53:18,885 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: stop_status
+2024-06-07 13:53:18,885 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: stop_status
+2024-06-07 13:53:19,131 DEBUG   SenderThread:64955 [sender.py:send():378] send: telemetry
+2024-06-07 13:53:19,131 DEBUG   SenderThread:64955 [sender.py:send():378] send: telemetry
+2024-06-07 13:53:19,132 DEBUG   SenderThread:64955 [sender.py:send():378] send: telemetry
+2024-06-07 13:53:19,132 DEBUG   SenderThread:64955 [sender.py:send():378] send: telemetry
+2024-06-07 13:53:19,132 DEBUG   SenderThread:64955 [sender.py:send():378] send: exit
+2024-06-07 13:53:19,132 INFO    SenderThread:64955 [sender.py:send_exit():585] handling exit code: 1
+2024-06-07 13:53:19,132 INFO    SenderThread:64955 [sender.py:send_exit():587] handling runtime: 0
+2024-06-07 13:53:19,132 INFO    SenderThread:64955 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-06-07 13:53:19,133 INFO    SenderThread:64955 [sender.py:send_exit():593] send defer
+2024-06-07 13:53:19,133 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,133 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 0
+2024-06-07 13:53:19,133 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,133 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 0
+2024-06-07 13:53:19,133 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 1
+2024-06-07 13:53:19,133 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,133 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 1
+2024-06-07 13:53:19,133 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,133 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 1
+2024-06-07 13:53:19,133 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 2
+2024-06-07 13:53:19,133 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,133 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 2
+2024-06-07 13:53:19,133 INFO    HandlerThread:64955 [system_monitor.py:finish():203] Stopping system monitor
+2024-06-07 13:53:19,134 INFO    HandlerThread:64955 [interfaces.py:finish():200] Joined cpu monitor
+2024-06-07 13:53:19,134 DEBUG   SystemMonitor:64955 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-06-07 13:53:19,134 INFO    HandlerThread:64955 [interfaces.py:finish():200] Joined disk monitor
+2024-06-07 13:53:19,134 DEBUG   SystemMonitor:64955 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-06-07 13:53:19,134 INFO    HandlerThread:64955 [interfaces.py:finish():200] Joined gpuapple monitor
+2024-06-07 13:53:19,134 DEBUG   SystemMonitor:64955 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-06-07 13:53:19,134 INFO    HandlerThread:64955 [interfaces.py:finish():200] Joined memory monitor
+2024-06-07 13:53:19,135 INFO    HandlerThread:64955 [interfaces.py:finish():200] Joined network monitor
+2024-06-07 13:53:19,135 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,135 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 2
+2024-06-07 13:53:19,135 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 3
+2024-06-07 13:53:19,135 DEBUG   SenderThread:64955 [sender.py:send():378] send: telemetry
+2024-06-07 13:53:19,135 DEBUG   SenderThread:64955 [sender.py:send():378] send: stats
+2024-06-07 13:53:19,135 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,135 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 3
+2024-06-07 13:53:19,136 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 3
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 4
+2024-06-07 13:53:19,136 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,136 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 4
+2024-06-07 13:53:19,136 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 4
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 5
+2024-06-07 13:53:19,136 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,136 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 5
+2024-06-07 13:53:19,136 DEBUG   SenderThread:64955 [sender.py:send():378] send: summary
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-06-07 13:53:19,136 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,136 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 5
+2024-06-07 13:53:19,137 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 6
+2024-06-07 13:53:19,137 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,137 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 6
+2024-06-07 13:53:19,137 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,137 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 6
+2024-06-07 13:53:19,139 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: status_report
+2024-06-07 13:53:19,250 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 7
+2024-06-07 13:53:19,251 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:19,251 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 7
+2024-06-07 13:53:19,251 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:19,251 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 7
+2024-06-07 13:53:19,328 INFO    wandb-upload_0:64955 [upload_job.py:push():130] Uploaded file /var/folders/pv/z7lkp1pj4g7gy41fmks2clg80000gn/T/tmpz02r9wluwandb/nb74fre6-wandb-metadata.json
+2024-06-07 13:53:19,484 INFO    Thread-12 :64955 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/config.yaml
+2024-06-07 13:53:19,484 INFO    Thread-12 :64955 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/output.log
+2024-06-07 13:53:19,485 INFO    Thread-12 :64955 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/requirements.txt
+2024-06-07 13:53:19,485 INFO    Thread-12 :64955 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/wandb-metadata.json
+2024-06-07 13:53:19,485 INFO    Thread-12 :64955 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/wandb-summary.json
+2024-06-07 13:53:19,995 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: poll_exit
+2024-06-07 13:53:21,145 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 8
+2024-06-07 13:53:21,145 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: poll_exit
+2024-06-07 13:53:21,145 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:21,145 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 8
+2024-06-07 13:53:21,146 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:21,146 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 8
+2024-06-07 13:53:21,146 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 9
+2024-06-07 13:53:21,146 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:21,147 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 9
+2024-06-07 13:53:21,147 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:21,147 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 9
+2024-06-07 13:53:21,147 INFO    SenderThread:64955 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-06-07 13:53:21,492 INFO    SenderThread:64955 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/output.log
+2024-06-07 13:53:21,492 INFO    SenderThread:64955 [dir_watcher.py:finish():388] scan: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files
+2024-06-07 13:53:21,493 INFO    SenderThread:64955 [dir_watcher.py:finish():402] scan save: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/requirements.txt requirements.txt
+2024-06-07 13:53:21,493 INFO    SenderThread:64955 [dir_watcher.py:finish():402] scan save: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/output.log output.log
+2024-06-07 13:53:21,495 INFO    SenderThread:64955 [dir_watcher.py:finish():402] scan save: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/config.yaml config.yaml
+2024-06-07 13:53:21,497 INFO    SenderThread:64955 [dir_watcher.py:finish():402] scan save: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/wandb-summary.json wandb-summary.json
+2024-06-07 13:53:21,499 INFO    SenderThread:64955 [dir_watcher.py:finish():402] scan save: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/wandb-metadata.json wandb-metadata.json
+2024-06-07 13:53:21,500 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 10
+2024-06-07 13:53:21,502 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:21,502 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 10
+2024-06-07 13:53:21,502 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:21,502 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 10
+2024-06-07 13:53:21,502 INFO    SenderThread:64955 [file_pusher.py:finish():169] shutting down file pusher
+2024-06-07 13:53:21,770 INFO    wandb-upload_1:64955 [upload_job.py:push():130] Uploaded file /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/output.log
+2024-06-07 13:53:21,919 INFO    wandb-upload_2:64955 [upload_job.py:push():130] Uploaded file /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/config.yaml
+2024-06-07 13:53:21,970 INFO    wandb-upload_0:64955 [upload_job.py:push():130] Uploaded file /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/requirements.txt
+2024-06-07 13:53:21,974 INFO    wandb-upload_3:64955 [upload_job.py:push():130] Uploaded file /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/files/wandb-summary.json
+2024-06-07 13:53:22,006 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: poll_exit
+2024-06-07 13:53:22,007 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: poll_exit
+2024-06-07 13:53:22,178 INFO    Thread-11 (_thread_body):64955 [sender.py:transition_state():613] send defer: 11
+2024-06-07 13:53:22,179 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:22,179 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 11
+2024-06-07 13:53:22,180 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:22,180 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 11
+2024-06-07 13:53:22,180 INFO    SenderThread:64955 [file_pusher.py:join():175] waiting for file pusher
+2024-06-07 13:53:22,182 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 12
+2024-06-07 13:53:22,182 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:22,182 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 12
+2024-06-07 13:53:22,182 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:22,183 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 12
+2024-06-07 13:53:22,183 INFO    SenderThread:64955 [file_stream.py:finish():601] file stream finish called
+2024-06-07 13:53:22,285 INFO    SenderThread:64955 [file_stream.py:finish():605] file stream finish is done
+2024-06-07 13:53:22,286 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 13
+2024-06-07 13:53:22,286 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:22,286 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 13
+2024-06-07 13:53:22,287 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:22,287 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 13
+2024-06-07 13:53:22,287 INFO    SenderThread:64955 [sender.py:transition_state():613] send defer: 14
+2024-06-07 13:53:22,288 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: defer
+2024-06-07 13:53:22,288 DEBUG   SenderThread:64955 [sender.py:send():378] send: final
+2024-06-07 13:53:22,288 INFO    HandlerThread:64955 [handler.py:handle_request_defer():184] handle defer: 14
+2024-06-07 13:53:22,288 DEBUG   SenderThread:64955 [sender.py:send():378] send: footer
+2024-06-07 13:53:22,288 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: defer
+2024-06-07 13:53:22,289 INFO    SenderThread:64955 [sender.py:send_request_defer():609] handle sender defer: 14
+2024-06-07 13:53:22,290 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: poll_exit
+2024-06-07 13:53:22,290 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: poll_exit
+2024-06-07 13:53:22,291 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: internal_messages
+2024-06-07 13:53:22,292 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: server_info
+2024-06-07 13:53:22,292 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: get_summary
+2024-06-07 13:53:22,293 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: sampled_history
+2024-06-07 13:53:22,293 DEBUG   SenderThread:64955 [sender.py:send_request():405] send_request: server_info
+2024-06-07 13:53:22,375 DEBUG   HandlerThread:64955 [handler.py:handle_request():158] handle_request: shutdown
+2024-06-07 13:53:22,376 INFO    HandlerThread:64955 [handler.py:finish():882] shutting down handler
+2024-06-07 13:53:23,298 INFO    WriterThread:64955 [datastore.py:close():296] close: /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135318-aahsdusg/run-aahsdusg.wandb
+2024-06-07 13:53:23,379 INFO    SenderThread:64955 [sender.py:finish():1545] shutting down sender
+2024-06-07 13:53:23,379 INFO    SenderThread:64955 [file_pusher.py:finish():169] shutting down file pusher
+2024-06-07 13:53:23,379 INFO    SenderThread:64955 [file_pusher.py:join():175] waiting for file pusher

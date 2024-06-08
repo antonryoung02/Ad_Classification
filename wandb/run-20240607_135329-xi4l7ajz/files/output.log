@@ -1,0 +1,12 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Ignored wandb.init() arg project when running a sweep.
+Traceback (most recent call last):
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py", line 40, in k_fold_cross_validation
+    trainer = Trainer(config, train_loader, val_loader)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/Trainer.py", line 33, in __init__
+    self.model = self.configurator.get_model()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/Configurator.py", line 12, in get_model
+    return SimpleCNN(self.config['kernels'], self.config['fc_units'], self.config(['dropout']))
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'Config' object is not callable

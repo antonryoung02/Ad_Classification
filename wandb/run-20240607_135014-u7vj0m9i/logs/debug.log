@@ -1,0 +1,36 @@
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Current SDK version is 0.17.0
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Configure stats pid to 63949
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Loading settings from /Users/anton/.config/wandb/settings
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Loading settings from /Users/anton/Downloads/Coding/Ad_Classification/wandb/settings
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Loading settings from environment variables: {'project': 'Ad_Classification', 'entity': 'antonryoung02_org', 'root_dir': '/Users/anton/Downloads/Coding/Ad_Classification', 'run_id': 'u7vj0m9i', 'sweep_param_path': '/Users/anton/Downloads/Coding/Ad_Classification/wandb/sweep-18j4lp3j/config-u7vj0m9i.yaml', 'sweep_id': '18j4lp3j'}
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-06-07 13:50:14,736 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'modeling/main.py', 'program_abspath': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py', 'program': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py'}
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:_log_setup():520] Logging user logs to /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135014-u7vj0m9i/logs/debug.log
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:_log_setup():521] Logging internal logs to /Users/anton/Downloads/Coding/Ad_Classification/wandb/run-20240607_135014-u7vj0m9i/logs/debug-internal.log
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():560] calling init triggers
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():567] wandb.init called with sweep_config: {'batch_size': 128, 'dropout': 0.3, 'fc_units': 32, 'kernels': [16, 16, 16, 16], 'lr': 1.0847295300235666, 'num_epochs': 30, 'weight_decay': 1.0279172154424754}
+config: {}
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():610] starting backend
+2024-06-07 13:50:14,737 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():614] setting up manager
+2024-06-07 13:50:14,742 INFO    Thread-6 (_run_job):63949 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-06-07 13:50:14,743 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():622] backend started and connected
+2024-06-07 13:50:14,752 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_config_callback():1376] config_cb None None {'batch_size': 128, 'dropout': 0.3, 'fc_units': 32, 'kernels': [16, 16, 16, 16], 'lr': 1.0847295300235666, 'num_epochs': 30, 'weight_decay': 1.0279172154424754}
+2024-06-07 13:50:14,755 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():711] updated telemetry
+2024-06-07 13:50:14,779 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():744] communicating run to backend with 90.0 second timeout
+2024-06-07 13:50:15,074 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_on_init():2396] communicating current version
+2024-06-07 13:50:15,234 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_on_init():2405] got version response upgrade_message: "wandb version 0.17.1 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-06-07 13:50:15,234 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():795] starting run threads in backend
+2024-06-07 13:50:15,446 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_console_start():2374] atexit reg
+2024-06-07 13:50:15,447 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_redirect():2229] redirect: wrap_raw
+2024-06-07 13:50:15,447 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_redirect():2294] Wrapping output streams.
+2024-06-07 13:50:15,447 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_redirect():2319] Redirects installed.
+2024-06-07 13:50:15,447 INFO    Thread-6 (_run_job):63949 [wandb_init.py:init():838] run started, returning control to user process
+2024-06-07 13:50:15,475 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_finish():2103] finishing run antonryoung02_org/Ad_Classification/u7vj0m9i
+2024-06-07 13:50:15,475 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_atexit_cleanup():2343] got exitcode: 1
+2024-06-07 13:50:15,475 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_restore():2326] restore
+2024-06-07 13:50:15,475 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_restore():2332] restore done
+2024-06-07 13:50:19,005 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_footer_history_summary_info():3994] rendering history
+2024-06-07 13:50:19,006 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_footer_history_summary_info():4026] rendering summary
+2024-06-07 13:50:19,016 INFO    Thread-6 (_run_job):63949 [wandb_run.py:_footer_sync_info():3953] logging synced files

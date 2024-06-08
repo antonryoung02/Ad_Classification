@@ -1,0 +1,20 @@
+wandb_version: 1
+
+batch_size:
+  value: 128
+dropout:
+  value: 0
+fc_units:
+  value: 64
+kernels:
+  value:
+  - 32
+  - 32
+  - 16
+  - 16
+lr:
+  value: 1.081474008582971
+num_epochs:
+  value: 30
+weight_decay:
+  value: 1.0132459829202574
