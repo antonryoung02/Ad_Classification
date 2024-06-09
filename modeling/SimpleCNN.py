@@ -1,43 +1,72 @@
-import torch.nn as nn
 import torch
+import pytorch_lightning as pl
+from ModelInitializer import ModelInitializer
+from Metrics import PLMetrics
+import torchmetrics.classification as m
 
-class SimpleCNN(nn.Module):
+class SimpleCNN(pl.LightningModule):
     """Creates a cnn with specified network architecture. Calculates dense network shape for last layer"""
-    def __init__(self, kernels, fc_units, dropout_rate, input_shape=(224,224)):
-        super(SimpleCNN, self).__init__()
+    def __init__(self, config, input_shape=(224,224), fold_idx=0):
+        super().__init__()
+        self.config = config
+        self.fold_idx = fold_idx
         self.input_shape = input_shape
-        self.network = nn.Sequential(
-            nn.Conv2d(3, kernels[0], kernel_size=3, padding="same"),
-            nn.ReLU(),
-            nn.Dropout2d(dropout_rate), 
-            nn.Conv2d(kernels[0], kernels[1], kernel_size=3, padding="same"),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
-            nn.Conv2d(kernels[1], kernels[2], kernel_size=3),
-            nn.ReLU(),
-            nn.Dropout2d(dropout_rate),
-            nn.Conv2d(kernels[2], kernels[3], kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
-            nn.Flatten()
-        )
-        self.network.add_module("fc", nn.Linear(self._find_fc_layer_shape(), fc_units))
-        self.network.add_module("fc2", nn.Linear(fc_units,1))
+        self.network, self.criterion, self.optimizer = ModelInitializer(self.config).initialize_model_crit_opt(self.input_shape)
+        
+        self.metrics = PLMetrics()
+        self.compute_train_acc = m.BinaryAccuracy()
+        self.compute_valid_acc = m.BinaryAccuracy()
+        self.compute_valid_precision = m.BinaryPrecision()
+        self.compute_valid_recall = m.BinaryRecall()
+        self.compute_valid_f1 = m.BinaryF1Score()
+        self.compute_valid_auroc = m.BinaryAUROC()
+
+        #self.save_hyperparameters()
 
     def forward(self, x):
-        """Performs forward propogation"""
         return self.network(x)
     
-    def _find_fc_layer_shape(self):
-        """Finds the output shape of the last conv/pool layer in a Sequential model, 
-       which is the required input shape for the fc layer."""
-        batch_size = 1
-        num_channels = 3
-        dummy_input = torch.rand(batch_size, num_channels, *self.input_shape)
+    def configure_optimizers(self):
+        return self.optimizer
+    
+    def common_step(self, batch, batch_idx):
+        inputs, labels = batch
+        logits = self.forward(inputs)
+        labels = labels.unsqueeze(1).float()
+        loss = self.criterion(logits, labels)
+        return loss, logits, labels
+    
+    def training_step(self, batch, batch_idx):
+        loss, logits, labels = self.common_step(batch, batch_idx)
+        preds = torch.round(torch.sigmoid(logits))
+        self.log(f'fold_{self.fold_idx}/train_loss', loss, on_epoch=True)
+        self.compute_train_acc(preds, labels)
+        self.log(f'fold_{self.fold_idx}/train_accuracy', self.compute_train_acc, on_epoch=True)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        loss, logits, labels = self.common_step(batch, batch_idx)
+        probs = torch.sigmoid(logits) 
+        preds = torch.round(probs)
 
-        with torch.no_grad():
-            for layer in self.network:
-                dummy_input = layer(dummy_input)
-                if isinstance(layer, nn.Flatten):
-                    break  # Stop right before Flatten layer
-        return dummy_input.numel()
+        self.log(f'fold_{self.fold_idx}/val_loss', loss, on_epoch=True)
+        self.compute_valid_acc(preds, labels)
+        self.log(f'fold_{self.fold_idx}/val_accuracy', self.compute_valid_acc, on_step=False, on_epoch=True)
+
+        self.compute_valid_acc(preds, labels)
+        self.compute_valid_precision(preds, labels)
+        self.compute_valid_recall(preds, labels)
+        self.compute_valid_f1(preds, labels) 
+        self.compute_valid_auroc(probs, labels)
+
+        return loss
+
+    def test_step(self, batch, batch_idx):
+        loss, logits, labels = self.common_step(batch, batch_idx)
+        return loss
+    
+    def predict_step(self, batch, batch_idx):
+        inputs, labels = batch
+        logits = self.forward(inputs)
+        return torch.round(torch.sigmoid(logits))
+

@@ -20,6 +20,7 @@ tqdm = "^4.66.1"
 opencv-python = "^4.8.1.78"
 tensorboard = "^2.16.2"
 wandb = "^0.17.0"
+pytorch-lightning = "^2.2.5"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.27.1"

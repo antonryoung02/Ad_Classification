@@ -49,7 +49,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = torch.load(os.environ["MODEL_CHECKPOINT_PATH"])
     image_path = os.environ["IMAGE_PATH"]
-    record_data = False  # Set to True for data collection
+    record_data = True # Set to True for data collection
 
     while os.path.exists("./classify_script_running"):
         if os.path.exists(image_path):
