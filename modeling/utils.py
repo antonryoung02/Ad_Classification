@@ -3,22 +3,26 @@ import torch.nn as nn
 import pytorch_lightning as pl
 import wandb
 
-class StoreAveragedMetrics(pl.Callback):
+class LogMetrics(pl.Callback):
     def __init__(self):
         super().__init__()
 
-    def on_validation_end(self, trainer, pl_module):
-        pl_module.metrics.valid_acc = pl_module.compute_valid_acc.compute().item()
-        pl_module.metrics.valid_precision = pl_module.compute_valid_precision.compute().item()
-        pl_module.metrics.valid_recall = pl_module.compute_valid_recall.compute().item()
-        pl_module.metrics.valid_f1 = pl_module.compute_valid_f1.compute().item()
-        pl_module.metrics.valid_auroc = pl_module.compute_valid_auroc.compute().item()
+    def on_fit_end(self, trainer, pl_module):
+        valid_acc = pl_module.compute_cumu_valid_acc.compute().item()
+        valid_precision = pl_module.compute_valid_precision.compute().item()
+        valid_recall = pl_module.compute_valid_recall.compute().item()
+        valid_f1 = pl_module.compute_valid_f1.compute().item()
+        valid_auroc = pl_module.compute_valid_auroc.compute().item()
+
+        metrics = {
+            f'fold_{pl_module.fold_idx}/Validation_Precision': valid_precision,
+            f'fold_{pl_module.fold_idx}/Validation_Recall': valid_recall,
+            f'fold_{pl_module.fold_idx}/Validation_F1_Score': valid_f1,
+            f'fold_{pl_module.fold_idx}/Validation_AUROC': valid_auroc,
+            f'fold': pl_module.fold_idx,
+        }
         
-        pl_module.compute_valid_acc.reset()
-        pl_module.compute_valid_precision.reset()
-        pl_module.compute_valid_recall.reset()
-        pl_module.compute_valid_f1.reset()
-        pl_module.compute_valid_auroc.reset()
+        trainer.logger.experiment.log(metrics)
 
 class KWorstPredictionsLogger(pl.Callback):
     def __init__(self, k=5):
@@ -30,34 +34,39 @@ class KWorstPredictionsLogger(pl.Callback):
         all_imgs = []
         all_labels = []
         all_losses = []
+        all_probs = []
+        criterion = torch.nn.BCEWithLogitsLoss(reduction='none')
 
         pl_module.eval()
         with torch.no_grad():
-            for batch in trainer.val_dataloaders:
-                val_imgs, val_labels = batch
+            for batch_idx, (val_imgs, val_labels) in enumerate(trainer.val_dataloaders):
                 val_imgs = val_imgs.to(device)
                 val_labels = val_labels.to(device)
 
-                loss, _, _ = pl_module.common_step((val_imgs, val_labels), None) 
-                loss = loss.unsqueeze(0)
+                logits = pl_module.forward(val_imgs)
+                losses = criterion(logits, val_labels.unsqueeze(1).float())
 
                 all_imgs.append(val_imgs)
                 all_labels.append(val_labels)
-                all_losses.append(loss)
+                all_losses.append(losses)
+                all_probs.append(torch.sigmoid(logits))
 
         all_imgs = torch.cat(all_imgs)
         all_labels = torch.cat(all_labels)
         all_losses = torch.cat(all_losses)
+        all_probs = torch.cat(all_probs)
 
-        topk_losses, topk_indices = torch.topk(all_losses, self.k)
+        topk_losses, topk_indices = torch.topk(all_losses.squeeze(), self.k)
         topk_imgs = all_imgs[topk_indices]
         topk_labels = all_labels[topk_indices]
+        topk_probs = all_probs[topk_indices]
 
         trainer.logger.experiment.log({
-            "worst predictions": [
-                wandb.Image(img.cpu(), caption=f"Loss:{loss.item()}, Label:{label.item()}")
-                for img, loss, label in zip(topk_imgs, topk_losses, topk_labels)
-            ]
+            "Worst Predictions By Model": [
+                wandb.Image(img.cpu(), caption=f"P(Advertisement):{prob.item():.3f}, Label:{label.item()}")
+                for img, prob, label in zip(topk_imgs, topk_probs, topk_labels)
+            ], 
+            "fold":pl_module.fold_idx
         })
 
 def find_fc_layer_shape(network, input_shape):
@@ -71,5 +80,5 @@ def find_fc_layer_shape(network, input_shape):
         for layer in network:
             dummy_input = layer(dummy_input)
             if isinstance(layer, nn.Flatten):
-                break  # Stop right before Flatten layer
+                break
     return dummy_input.numel()

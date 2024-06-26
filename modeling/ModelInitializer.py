@@ -39,6 +39,9 @@ class ModelInitializer:
     
     def get_optimizer(self, model):
         return optim.Adam(model.parameters(), lr=self.config['lr'], weight_decay=self.config['weight_decay'])
+
+    def get_callbacks(self):
+        pass
     
     def get_device(self):
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")

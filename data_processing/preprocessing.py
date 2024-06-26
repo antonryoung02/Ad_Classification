@@ -1,13 +1,10 @@
 import os
 import PIL
 from PIL import Image
-from data_augmentation import apply_augmentations
-
 
 def preprocess_data(
     input_dir: str,
     output_dir: str,
-    augment_input: bool = True,
     dimensions: tuple = (224, 224),
 ) -> None:
     """
@@ -20,8 +17,7 @@ def preprocess_data(
     param dimensions: (width, height) in pixels of transformed image size
     """
     if not os.path.exists(input_dir) or not os.path.exists(output_dir):
-        print("Input or output directory does not exist.")
-        return
+        raise FileNotFoundError("Input or output directories do not exist!")
 
     for filename in os.listdir(input_dir):
         if filename.lower().endswith(".png"):
@@ -30,13 +26,10 @@ def preprocess_data(
                 try:
                     image = Image.open(image_path)
                     processed_image = preprocess_image(image, dimensions)
-                    if augment_input:
-                        apply_augmentations(processed_image, output_dir, filename)
-                    else:
-                        original_output_path = os.path.join(output_dir, filename)
-                        processed_image.save(original_output_path)
+                    original_output_path = os.path.join(output_dir, filename)
+                    processed_image.save(original_output_path)
                 except (PIL.UnidentifiedImageError, OSError) as e:
-                    print(f"Error processing {image_path}: {e}")
+                    print(f"Error processing image {image_path}: {e}")
             else:
                 print(f"File not found: {image_path}")
 

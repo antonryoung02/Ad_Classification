@@ -7,8 +7,11 @@ clear_directory(OUTPUT_POS) #For processing reusability
 clear_directory(OUTPUT_NEG)
 
 #Handle data sources differently
-preprocess_data("./raw_data/new_data_pos", OUTPUT_POS, augment_input=False, dimensions= IMAGE_DIMENSION)
-preprocess_data("./raw_data/new_data_neg", OUTPUT_NEG, augment_input=False, dimensions=IMAGE_DIMENSION)
-preprocess_data("./raw_data/data_pos", OUTPUT_POS, augment_input=False, dimensions=IMAGE_DIMENSION)
-preprocess_data("./raw_data/data_neg", OUTPUT_NEG, augment_input=False, dimensions= IMAGE_DIMENSION)
+preprocess_data("./raw_data/new_data_pos", OUTPUT_POS, dimensions= IMAGE_DIMENSION)
+preprocess_data("./raw_data/new_data_neg", OUTPUT_NEG, dimensions=IMAGE_DIMENSION)
+preprocess_data("./raw_data/data_pos", OUTPUT_POS, dimensions=IMAGE_DIMENSION)
+preprocess_data("./raw_data/data_neg", OUTPUT_NEG, dimensions= IMAGE_DIMENSION)
+preprocess_data("./raw_data/collected_data_pos", OUTPUT_POS, dimensions=IMAGE_DIMENSION)
+preprocess_data("./raw_data/collected_data_neg", OUTPUT_NEG, dimensions= IMAGE_DIMENSION)
+
 
