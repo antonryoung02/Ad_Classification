@@ -1,0 +1,131 @@
+
+Sanity Checking DataLoader 0:   0%|                                                                                                                                                                                                                         | 0/2 [00:00<?, ?it/s]
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torchvision/transforms/v2/_deprecated.py:43: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.
+  warnings.warn(
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loggers/wandb.py:396: There is a wandb run already in progress and newly created instances of `WandbLogger` will reuse this run. If this is not desired, call `wandb.finish()` before instantiating `WandbLogger`.
+[34m[1mwandb[39m[22m: logging graph, to disable use `wandb.watch(log_graph=False)`
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                    | Type              | Params
+--------------------------------------------------------------
+0 | network                 | Sequential        | 735 K
+1 | criterion               | BCEWithLogitsLoss | 0
+2 | compute_train_acc       | BinaryAccuracy    | 0
+3 | compute_cumu_valid_acc  | BinaryAccuracy    | 0
+4 | compute_valid_acc       | BinaryAccuracy    | 0
+5 | compute_valid_precision | BinaryPrecision   | 0
+6 | compute_valid_recall    | BinaryRecall      | 0
+7 | compute_valid_f1        | BinaryF1Score     | 0
+8 | compute_valid_auroc     | BinaryAUROC       | 0
+--------------------------------------------------------------
+735 K     Trainable params
+0         Non-trainable params
+735 K     Total params
+2.944     Total estimated model params size (MB)
+
+Sanity Checking DataLoader 0:  50%|████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                                                                                        | 1/2 [00:04<00:04,  0.24it/s]
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:441: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=7` in the `DataLoader` to improve performance.
+
+Epoch 0:   0%|                                                                                                                                                                                                                                             | 0/28 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py", line 54, in k_fold_cross_validation
+    trainer.fit(model, train_loader, val_loader)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 544, in fit
+    call._call_and_handle_interrupt(
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py", line 44, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 580, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 987, in _run
+    results = self._run_stage()
+              ^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1033, in _run_stage
+    self.fit_loop.run()
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/fit_loop.py", line 205, in run
+    self.advance()
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/fit_loop.py", line 363, in advance
+    self.epoch_loop.run(self._data_fetcher)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 140, in run
+    self.advance(data_fetcher)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 250, in advance
+    batch_output = self.automatic_optimization.run(trainer.optimizers[0], batch_idx, kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 190, in run
+    self._optimizer_step(batch_idx, closure)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 268, in _optimizer_step
+    call._call_lightning_module_hook(
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py", line 157, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/core/module.py", line 1303, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/core/optimizer.py", line 152, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, closure, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/strategies/strategy.py", line 239, in optimizer_step
+    return self.precision_plugin.optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/plugins/precision/precision.py", line 122, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/optim/optimizer.py", line 373, in wrapper
+    out = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/optim/optimizer.py", line 76, in _use_grad
+    ret = func(self, *args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/optim/adam.py", line 143, in step
+    loss = closure()
+           ^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/plugins/precision/precision.py", line 108, in _wrap_closure
+    closure_result = closure()
+                     ^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 144, in __call__
+    self._result = self.closure(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 129, in closure
+    step_output = self._step_fn()
+                  ^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 318, in _training_step
+    training_step_output = call._call_strategy_hook(trainer, "training_step", *kwargs.values())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py", line 309, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/strategies/strategy.py", line 391, in training_step
+    return self.lightning_module.training_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/CNN.py", line 36, in training_step
+    loss, logits, labels = self.common_step(batch, batch_idx)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/CNN.py", line 30, in common_step
+    logits = self.forward(inputs).squeeze()
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/CNN.py", line 23, in forward
+    return self.network(x)
+           ^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/nn/modules/container.py", line 215, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1568, in _call_impl
+    result = forward_call(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anton/Downloads/Coding/Ad_Classification/modeling/utils.py", line 114, in forward
+    x = torch.cat((x_1x1, x_3x3), dim=1) #Shape is [batchsize,outchannels,outputheight,outputwidth] ?
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: MPS backend out of memory (MPS allocated: 3.81 GB, other allocations: 5.00 GB, max allowed: 9.07 GB). Tried to allocate 729.00 MB on private pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).

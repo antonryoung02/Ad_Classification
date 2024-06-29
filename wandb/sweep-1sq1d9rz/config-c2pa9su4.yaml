@@ -1,0 +1,24 @@
+wandb_version: 1
+
+base_e:
+  value: 128
+batch_size:
+  value: 256
+dropout:
+  value: 0
+freq:
+  value: 2
+incr_e:
+  value: 128
+initializer:
+  value: squeezenet
+lr:
+  value: 0.01
+num_epochs:
+  value: 15
+pct_3x3:
+  value: 0.5
+sr:
+  value: 0.4
+weight_decay:
+  value: 0.004428991698759276

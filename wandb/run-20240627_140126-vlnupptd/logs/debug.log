@@ -1,0 +1,25 @@
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Current SDK version is 0.17.0
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Configure stats pid to 68761
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Loading settings from /Users/anton/.config/wandb/settings
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Loading settings from /Users/anton/Downloads/Coding/Ad_Classification/modeling/wandb/settings
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Loading settings from environment variables: {'project': 'Ad_Classification', 'entity': 'antonryoung02_org', 'root_dir': '/Users/anton/Downloads/Coding/Ad_Classification/modeling', 'run_id': 'vlnupptd', 'sweep_param_path': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/wandb/sweep-4azdsdxy/config-vlnupptd.yaml', 'sweep_id': '4azdsdxy'}
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'modeling/main.py', 'program_abspath': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py', 'program': '/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py'}
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:_log_setup():520] Logging user logs to /Users/anton/Downloads/Coding/Ad_Classification/modeling/wandb/run-20240627_140126-vlnupptd/logs/debug.log
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:_log_setup():521] Logging internal logs to /Users/anton/Downloads/Coding/Ad_Classification/modeling/wandb/run-20240627_140126-vlnupptd/logs/debug-internal.log
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():560] calling init triggers
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():567] wandb.init called with sweep_config: {'base_e': 128, 'batch_size': 256, 'dropout': 0.2, 'freq': 2, 'incr_e': 128, 'initializer': 'squeezenet', 'lr': 0.0001, 'num_epochs': 15, 'pct_3x3': 0.4, 'sr': 0.75, 'weight_decay': 8.564661449591711e-05}
+config: {}
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():610] starting backend
+2024-06-27 14:01:26,246 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():614] setting up manager
+2024-06-27 14:01:26,250 INFO    Thread-7 (_run_job):68761 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-06-27 14:01:26,251 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():622] backend started and connected
+2024-06-27 14:01:26,258 INFO    Thread-7 (_run_job):68761 [wandb_run.py:_config_callback():1376] config_cb None None {'base_e': 128, 'batch_size': 256, 'dropout': 0.2, 'freq': 2, 'incr_e': 128, 'initializer': 'squeezenet', 'lr': 0.0001, 'num_epochs': 15, 'pct_3x3': 0.4, 'sr': 0.75, 'weight_decay': 8.564661449591711e-05}
+2024-06-27 14:01:26,301 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():711] updated telemetry
+2024-06-27 14:01:26,327 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():744] communicating run to backend with 90.0 second timeout
+2024-06-27 14:01:26,658 INFO    Thread-7 (_run_job):68761 [wandb_run.py:_on_init():2396] communicating current version
+2024-06-27 14:01:26,849 INFO    Thread-7 (_run_job):68761 [wandb_run.py:_on_init():2405] got version response upgrade_message: "wandb version 0.17.3 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-06-27 14:01:26,849 INFO    Thread-7 (_run_job):68761 [wandb_init.py:init():795] starting run threads in backend
+2024-06-27 14:01:28,877 WARNING MsgRouterThr:68761 [router.py:message_loop():77] message_loop has been closed

@@ -23,12 +23,11 @@ class AbstractTransformation(ABC):
 
 class DefaultsTransformation(AbstractTransformation):
     def transform(self, image):
-        if random.random() > 0.75:
-            return image
         transforms = v2.Compose([
             v2.ColorJitter(),
             v2.RandomGrayscale(),
             v2.RandomAdjustSharpness(sharpness_factor=(1.5 - random.random())),
-            v2.RandomHorizontalFlip()
+            v2.RandomHorizontalFlip(),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #Imagenet values
         ])
         return transforms(image)

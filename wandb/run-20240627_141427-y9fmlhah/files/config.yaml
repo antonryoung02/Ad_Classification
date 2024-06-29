@@ -1,0 +1,74 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.5
+    cli_version: 0.17.0
+    framework: lightning
+    is_jupyter_run: false
+    is_kaggle_kernel: true
+    start_time: 1719519267
+    t:
+      1:
+      - 1
+      - 5
+      - 9
+      - 41
+      - 53
+      - 55
+      - 103
+      2:
+      - 1
+      - 5
+      - 9
+      - 41
+      - 53
+      - 55
+      - 103
+      3:
+      - 1
+      - 2
+      - 15
+      - 23
+      - 37
+      4: 3.11.5
+      5: 0.17.0
+      8:
+      - 2
+      - 4
+      - 5
+      13: darwin-arm64
+base_e:
+  desc: null
+  value: 128
+batch_size:
+  desc: null
+  value: 256
+dropout:
+  desc: null
+  value: 0.2
+freq:
+  desc: null
+  value: 2
+incr_e:
+  desc: null
+  value: 128
+initializer:
+  desc: null
+  value: squeezenet
+lr:
+  desc: null
+  value: 0.1
+num_epochs:
+  desc: null
+  value: 10
+pct_3x3:
+  desc: null
+  value: 0.3
+sr:
+  desc: null
+  value: 0.125
+weight_decay:
+  desc: null
+  value: 0.0002888735839875465
