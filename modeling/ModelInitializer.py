@@ -1,24 +1,21 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils import find_fc_layer_shape, SqueezeNetWithSkipConnections
-from abc import ABC, abstractmethod
-import numpy as np
+from modeling.utils import find_fc_layer_shape, SqueezeNetWithSkipConnections
 
-class AbstractModelInitializer(ABC):
-    @abstractmethod
-    def initialize_model_crit_opt(self, input_shape):
+class DefaultModelInitializer:
+    def __init__(self, config):
+        self.config = config
+
+    def initialize_model_crit_opt_sched(self, input_shape):
         pass
 
-    @abstractmethod
     def get_model(self, input_shape):
         pass
 
-    @abstractmethod
     def get_criterion(self):
         pass
 
-    @abstractmethod
     def get_optimizer(self, model):
         pass
 
@@ -26,7 +23,7 @@ class AbstractModelInitializer(ABC):
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-class SqueezeNetInitializer(AbstractModelInitializer):
+class SqueezeNetInitializer(DefaultModelInitializer):
     """
     Initializes the SqueezeNet architecture
 
@@ -38,45 +35,46 @@ class SqueezeNetInitializer(AbstractModelInitializer):
     incr_e: 128 (probably need to be hardcoded to work)
     freq: 2 (probably need to be hardcoded to work)
     """
-    def __init__(self, config):
-        self.config = config
-
-    def initialize_model_crit_opt(self, input_shape):
+    def initialize_model_crit_opt_sched(self, input_shape):
         model = self.get_model(input_shape)
         model.apply(self._initialize_weights)
+        optimizer = self.get_optimizer(model)
+        scheduler = self.get_scheduler(optimizer)
 
-        return model, self.get_criterion(), self.get_optimizer(model)
+        return model, self.get_criterion(), optimizer, scheduler
     
     def _initialize_weights(self, module):
+        """He initialization"""
         if isinstance(module, (nn.Conv2d, nn.Linear)):
             nn.init.kaiming_uniform_(module.weight, nonlinearity='relu')
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
     def get_model(self, input_shape):
-        network =  SqueezeNetWithSkipConnections(self.config, (3, 224, 224))
+        network =  SqueezeNetWithSkipConnections(self.config, input_shape)
         return network
+    
+    def get_scheduler(self, optimizer):
+        lr_gamma = self.config['lr_gamma'] if 'lr_gamma' in self.config.keys() else 0.1
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=lr_gamma)
+        return scheduler
 
     def get_criterion(self):
+        # Squeezenet seems to be sensitive to class imbalances
         class_weights = torch.tensor([1.5], dtype=torch.float).to(self.get_device())
-
         return nn.BCEWithLogitsLoss(pos_weight=class_weights)
     
     def get_optimizer(self, model):
         #return optim.Adam(model.parameters(), lr=self.config['lr'], weight_decay=self.config['weight_decay'])
         return optim.SGD(model.parameters(), lr=self.config['lr'], momentum=0.9, weight_decay=self.config['weight_decay'])
 
-    def get_callbacks(self):
-        pass
-    
-
 class SimpleCNNInitializer:
     def __init__(self, config):
         self.config = config
 
-    def initialize_model_crit_opt(self, input_shape):
+    def initialize_model_crit_opt_sched(self, input_shape):
         model = self.get_model(input_shape)
-        return model, self.get_criterion(), self.get_optimizer(model)
+        return model, self.get_criterion(), self.get_optimizer(model), None
     
     def get_model(self, input_shape):
         kernels = self.config['kernels']
@@ -106,9 +104,6 @@ class SimpleCNNInitializer:
     
     def get_optimizer(self, model):
         return optim.Adam(model.parameters(), lr=self.config['lr'], weight_decay=self.config['weight_decay'])
-
-    def get_callbacks(self):
-        pass
     
     def get_device(self):
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")

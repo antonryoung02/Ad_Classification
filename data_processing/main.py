@@ -1,4 +1,9 @@
-from preprocessing import clear_directory, preprocess_data
+import sys
+import os
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
+
+from data_processing.preprocessing import clear_directory, preprocess_data
 
 OUTPUT_POS = "./modeling/data/data_pos"
 OUTPUT_NEG = "./modeling/data/data_neg"
