@@ -10,3 +10,5 @@ pi_inference/data
 
 *.ckpt
 
+wandb/
+**/wandb/
