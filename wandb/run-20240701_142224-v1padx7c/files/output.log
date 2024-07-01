@@ -1,0 +1,34 @@
+[34m[1mwandb[39m[22m: logging graph, to disable use `wandb.watch(log_graph=False)`
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/configuration_validator.py:74: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
+  | Name            | Type                          | Params
+------------------------------------------------------------------
+0 | network         | SqueezeNetWithSkipConnections | 1.0 M
+1 | criterion       | BCEWithLogitsLoss             | 0
+2 | train_acc       | BinaryAccuracy                | 0
+3 | valid_acc       | BinaryAccuracy                | 0
+4 | valid_precision | BinaryPrecision               | 0
+5 | valid_recall    | BinaryRecall                  | 0
+6 | valid_f1        | BinaryF1Score                 | 0
+7 | valid_auroc     | BinaryAUROC                   | 0
+------------------------------------------------------------------
+1.0 M     Trainable params
+0         Non-trainable params
+1.0 M     Total params
+4.099     Total estimated model params size (MB)
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:436: Consider setting `persistent_workers=True` in 'train_dataloader' to speed up the dataloader worker initialization.
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/utils/data/dataloader.py:557: UserWarning: This DataLoader will create 29 worker processes in total. Our suggested max number of worker in current system is 8 (`cpuset` is not taken into account), which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py:54: Detected KeyboardInterrupt, attempting graceful shutdown...
+Exception ignored in: <function _MultiProcessingDataLoaderIter.__del__ at 0x116dfb4c0>
+Traceback (most recent call last):
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1478, in __del__
+    self._shutdown_workers()
+  File "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1436, in _shutdown_workers
+    if self._persistent_workers or self._workers_status[worker_id]:
+                                   ^^^^^^^^^^^^^^^^^^^^
+AttributeError: '_MultiProcessingDataLoaderIter' object has no attribute '_workers_status'
+Checkpoint saved at example.ckpt

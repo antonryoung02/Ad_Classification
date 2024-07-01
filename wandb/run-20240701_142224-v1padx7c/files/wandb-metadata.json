@@ -1,0 +1,37 @@
+{
+    "os": "macOS-14.3.1-arm64-arm-64bit",
+    "python": "3.11.5",
+    "heartbeatAt": "2024-07-01T20:22:25.872479",
+    "startedAt": "2024-07-01T20:22:24.843698",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/anton/Downloads/Coding/Ad_Classification/modeling/main.py",
+    "codePathLocal": "modeling/main.py",
+    "codePath": "modeling/main.py",
+    "git": {
+        "remote": "https://github.com/antonryoung02/Ad_Classification.git",
+        "commit": "b91fdd5598b1478091fc73c632a6138578b56c25"
+    },
+    "email": "89807629+antonryoung02@users.noreply.github.com",
+    "root": "/Users/anton/Downloads/Coding/Ad_Classification",
+    "host": "Antons-MacBook-Air.local",
+    "username": "anton",
+    "executable": "/Users/anton/Library/Caches/pypoetry/virtualenvs/ad-classification-ATcn38Yo-py3.11/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "disk": {
+        "/": {
+            "total": 228.27386474609375,
+            "used": 13.39981460571289
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 8.0
+    }
+}

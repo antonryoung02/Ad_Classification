@@ -1,14 +1,13 @@
 #!/bin/bash
-source .env
-
+IMAGE_PATH="./images/image.png"
+AD_SIGNAL_PATH="./ad_signal.txt"
 mkdir -p $(dirname "$IMAGE_PATH")
-
 # Initialize an array to keep the last three ad_signal values
 ad_signal_history=(0 0 0)
 
 touch ./classify_script_running
 trap "rm -f ./classify_script_running" EXIT
-python ./mac_inference.py &
+python ./inference.py &
 
 while true; do
  
@@ -22,8 +21,8 @@ while true; do
 
     sleep 1
 
-    if [ -f "$AD_SIGNAL_FILE" ]; then
-        read -r ad_signal < "$AD_SIGNAL_FILE"
+    if [ -f "$AD_SIGNAL_PATH" ]; then
+        read -r ad_signal < "$AD_SIGNAL_PATH"
 
         if [ "$ad_signal" = "True" ]; then
             ad_signal_history=(1 "${ad_signal_history[@]:0:2}")
