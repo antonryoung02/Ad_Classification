@@ -8,23 +8,23 @@ from typing import Tuple
 class AbstractTransformation(ABC):
     """Defines an interface for Transformation classes used in the AugmentedImageFolder"""
     @abstractmethod
-    def transform(self, image:torch.tensor) -> None:
+    def transform(self, image:torch.Tensor) -> None:
         pass
 
-class DefaultsTransformation(AbstractTransformation):
+class TrainTransformation(AbstractTransformation):
     """An instance of AbstractTransformation.
-    
+
         Applies v2.ColorJitter, v2.RandomGrayscale, v2.RandomAdjustSharpness, v2.RandomHorizontalFlip,
         v2.RandomResizedCrop, and v2.Normalize transforms
     """
-    def transform(self, image:torch.tensor) -> torch.tensor:
+    def transform(self, image:torch.Tensor) -> torch.Tensor:
         """Method that defines the augmentation steps
 
         Args:
-            image (torch.tensor): Tensor before augmentation
+            image (torch.Tensor): Tensor before augmentation
 
         Returns:
-            torch.tensor: Tensor after augmentation
+            torch.Tensor: Tensor after augmentation
         """
         transforms = v2.Compose([
             v2.ColorJitter(brightness=(0.7,1), hue=.1, contrast=.1),

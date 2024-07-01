@@ -1,21 +1,24 @@
 import wandb
 import pytorch_lightning as pl
 import torch
-from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryAUROC
+from typing import Dict, Tuple
+from torch.optim import Optimizer
 
-class LogMetrics(pl.Callback):
-    """"""
+class MetricsLogger(pl.Callback):
+    """Logs metrics to module logger on every epoch and end of training.
+    Records Train Accuracy, Val Accuracy, Val Precision, Val Recall, Val F1 and Val AUROC
+    """
     def __init__(self):
         super().__init__()
         self.metrics = None
 
-    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+    def on_train_batch_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule, outputs:Dict[str, torch.Tensor], batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int):
         preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
         pl_module.train_acc(preds, labels)
 
         pl_module.log(f'fold_{pl_module.fold_idx}/Train_Accuracy', pl_module.train_acc, on_step=False, on_epoch=True)
 
-    def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx=0):
+    def on_validation_batch_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule, outputs:Dict[str, torch.Tensor], batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int, dataloader_idx:int=0):
         preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
         pl_module.valid_acc(preds, labels)
         pl_module.valid_precision(preds, labels)
@@ -59,11 +62,12 @@ class LogMetrics(pl.Callback):
             'fold': pl_module.fold_idx,
         })
 
-    def get_metrics(self):
+    def get_epoch_metrics(self) -> Dict[str, float]:
         return self.metrics
 
 class GradientNormLogger(pl.Callback):
-    def on_before_optimizer_step(self, trainer, pl_module, optimizer, optimizer_idx=None):
+    """Logs the l2 gradient norm of each layer in the network for debugging purposes"""
+    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int=None) -> None:
         grad_norms = {}
         for name, param in pl_module.named_parameters():
             if param.grad is not None:
@@ -77,11 +81,12 @@ class GradientNormLogger(pl.Callback):
         trainer.logger.experiment.log(grad_norms)
 
 class KWorstPredictionsLogger(pl.Callback):
+    """Uses the wandb logger to log images of the fully trained model's 5 worst validation set losses"""
     def __init__(self, k=5):
         super().__init__()
         self.k = k
 
-    def on_fit_end(self, trainer, pl_module):
+    def on_fit_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule) -> None:
         device = pl_module.device
         all_imgs = []
         all_labels = []

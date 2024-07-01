@@ -8,3 +8,5 @@ pi_inference/data
 
 *.pth
 
+*.ckpt
+

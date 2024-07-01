@@ -12,8 +12,30 @@ from torch import nn
 from modeling.utils import SqueezeNetWithSkipConnections
 from modeling.CNN import CNN
 from modeling.ModelInitializer import SqueezeNetInitializer
+from typing import Tuple
+import pytorch_lightning as pl
 
-def preprocess_image(image_path, dimensions):
+MODEL_CHECKPOINT_PATH="./example.ckpt"
+IMAGE_PATH="./images/image.png"
+AD_SIGNAL_PATH="./ad_signal.txt"
+POS_DIR="../raw_data/collected_data_pos"
+NEG_DIR="../raw_data/collected_data_neg"
+RECORD_DATA=False
+CONFIG = {
+    "base_e": 128,
+    "batch_size":256,
+    "dropout":0.06482,
+    "incr_e":96,
+    "initializer":"squeezenet",
+    "lr":0.01786,
+    "lr_gamma":0.3295,
+    "num_epochs":5,
+    "pct_3x3":0.5,
+    "sr":0.25,
+    "weight_decay":0.001374
+}
+
+def preprocess_image(image_path:str, dimensions:Tuple[int, int]) -> torch.Tensor:
     """Transforms to fit model input expectations"""
     width, height = dimensions
     transform = v2.Compose([v2.ToTensor(), v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
@@ -23,7 +45,7 @@ def preprocess_image(image_path, dimensions):
     return transformed_image
 
 
-def run_inference(model, device, record_data, image_path):
+def run_inference(model:pl.LightningModule, record_data:bool, image_path:str) -> float:
     """>0.5 predicts advertisement, <0.5 predicts hockey
 
     param model: torch.nn.Module pytorch model
@@ -34,10 +56,8 @@ def run_inference(model, device, record_data, image_path):
     prediction = model.predict_step(image)
 
     if record_data:
-        pos_dir = os.environ["POS_DIR"]
-        neg_dir = os.environ["NEG_DIR"]
         unique_filename = f"{time.strftime('%Y%m%d_%H%M%S')}_image.png"
-        new_dir = pos_dir if prediction > 0.5 else neg_dir
+        new_dir = POS_DIR if prediction > 0.5 else NEG_DIR
         new_path = os.path.join(new_dir, unique_filename)
         shutil.move(image_path, new_path)
     else:
@@ -47,38 +67,19 @@ def run_inference(model, device, record_data, image_path):
 
 
 def main():
-    model_checkpoint_path = os.environ.get("MODEL_CHECKPOINT_PATH")
-    config = {
-        "base_e": 128,
-        "batch_size":256,
-        "dropout":0.06482,
-        "incr_e":96,
-        "initializer":"squeezenet",
-        "lr":0.01786,
-        "lr_gamma":0.3295,
-        "num_epochs":5,
-        "pct_3x3":0.5,
-        "sr":0.25,
-        "weight_decay":0.001374
-    }
-    initializer = SqueezeNetInitializer(config)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model_checkpoint_path = os.environ["MODEL_CHECKPOINT_PATH"]
-    model = CNN.load_from_checkpoint(checkpoint_path=model_checkpoint_path, config=config, initializer=initializer)
-    image_path = os.environ["IMAGE_PATH"]
-    record_data = False # Set to True for data collection
+    model = CNN.load_from_checkpoint(checkpoint_path=MODEL_CHECKPOINT_PATH, config=CONFIG)
     model.eval()
 
     while os.path.exists("./classify_script_running"):
-        if os.path.exists(image_path):
+        if os.path.exists(IMAGE_PATH):
             time.sleep(1)
-            output = run_inference(model, device, record_data, image_path)
+            output = run_inference(model, RECORD_DATA, IMAGE_PATH)
             if output > 0.5:
                 prediction = "True"
             else:
                 prediction = "False"
 
-            with open("./ad_signal.txt", "w") as file:
+            with open(AD_SIGNAL_PATH, "w") as file:
                 file.write(prediction)
 
 if __name__ == "__main__":

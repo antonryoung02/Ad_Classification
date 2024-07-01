@@ -1,20 +1,22 @@
 import os
 import PIL
 from PIL import Image
+from typing import Tuple
 
 def preprocess_data(
     input_dir: str,
     output_dir: str,
-    dimensions: tuple = (224, 224),
+    dimensions: Tuple[int, int] = (224, 224),
 ) -> None:
-    """
-    Transforms all .png files to desired specifications using preprocess_image
-    and apply_augmentations
+    """Applies preprocess_image on all images in input_dir and saves them to output_dir
 
-    param input_dir: the directory of untransformed images
-    param output_dir: where transformed images are stored
-    param augment_input: Whether or not to augment the data in input_dir
-    param dimensions: (width, height) in pixels of transformed image size
+    Args:
+        input_dir (str): Path to unprocessed images
+        output_dir (str): Path to save images
+        dimensions (Tuple[int, int], optional): _description_. Defaults to (224, 224).
+
+    Raises:
+        FileNotFoundError: If input_dir or output_dir directories do not exist
     """
     if not os.path.exists(input_dir) or not os.path.exists(output_dir):
         raise FileNotFoundError("Input or output directories do not exist!")
@@ -34,20 +36,29 @@ def preprocess_data(
                 print(f"File not found: {image_path}")
 
 
-def preprocess_image(image: Image, dimensions: tuple) -> Image:
-    """
-    Converts an Image object to size / #channels compatible with the CNN
+def preprocess_image(image: Image, dimensions: Tuple[int, int]) -> Image:
+    """Applies resizing to an image
+
+    Args:
+        image (Image): The unprocessed PIL.Image object
+        dimensions (Tuple[int, int]): The width, height dimensions to resize to
+
+    Returns:
+        Image: The processed image
     """
     width, height = dimensions
     resized_image = image.resize((width, height))
     return resized_image.convert("RGB")
 
 
-def clear_directory(directory):
-    """Clears output directory for test reusability"""
+def clear_directory(directory_path:str):
+    """Clears a directory
 
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
+    Args:
+        directory_path (str):
+    """
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)

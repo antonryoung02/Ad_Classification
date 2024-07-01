@@ -1,35 +1,19 @@
 import torch
 import torch.nn as nn
 import numpy as np
-
-def find_fc_layer_shape(network, input_shape):
-    """Finds the output shape of the last conv/pool layer in a Sequential model, 
-    which is the required input shape for the fc layer."""
-    batch_size = 1
-    num_channels = 3
-    dummy_input = torch.rand(batch_size, num_channels, *input_shape)
-
-    with torch.no_grad():
-        for layer in network:
-            dummy_input = layer(dummy_input)
-            if isinstance(layer, nn.Flatten):
-                break
-    return dummy_input.numel()
+from typing import Tuple, Dict
 
 class FireModule(torch.nn.Module):
-    def __init__(self, in_channels, num_squeeze_1x1, num_expand_1x1, num_expand_3x3):
+    def __init__(self, in_channels:int, num_squeeze_1x1:int, num_expand_1x1:int, num_expand_3x3:int):
         """
-        Kwarg defaults are as specified in SqueezeNet paper
+        Creates a Fire Module from the squeezenet paper with batch normalization and ReLU activations.
+        Number of output feature maps = num_expand_1x1 + num_expand 3x3
 
-        in_channels: Given from previous layer
-
-        ei: Total number of filters in the expand layer
-
-        pct3x3: Percentage of 3x3 filters in the expand layer
-
-        SR: Ratio of (1x1) filters used in the squeeze layer
-        (si = ei * SR) etc
-        
+        Args:
+            in_channels (int): The number of feature maps from the previous layer
+            num_squeeze_1x1 (int): The total number of filters in the 'squeeze layer'
+            num_expand_1x1 (int): The number of 1x1 filters in the 'expand layer'
+            num_expand_3x3 (int): The number of 3x3 filters in the 'expand layer'
         """
         super(FireModule, self).__init__()
         self.squeeze_layer = torch.nn.Sequential(
@@ -48,7 +32,7 @@ class FireModule(torch.nn.Module):
             torch.nn.ReLU(inplace=True)
         )
 
-    def forward(self, x):
+    def forward(self, x:torch.Tensor):
         x = self.squeeze_layer(x)
         x_1x1 = self.expand_1x1_layer(x)
         x_3x3 = self.expand_3x3_layer(x)
@@ -56,7 +40,15 @@ class FireModule(torch.nn.Module):
         return x
 
 class SqueezeNetWithSkipConnections(nn.Module):
-    def __init__(self, config, input_shape):
+    """Squeezenet architecture with simple residual connections between fire modules"""
+    def __init__(self, config:Dict[str, any], input_shape:Tuple[int, int, int]):
+        """
+        Initializes the model layers      
+
+        Args:
+            config (dict): Contains the hparam keys 'dropout', 'incr_e', 'base_e', 'pct_3x3', 'sr', 
+            input_shape (tuple): Input shape of one image (num channels, image height, image width)
+        """
         super().__init__()
         dropout_rate = config['dropout']
         self.config = config
@@ -87,10 +79,10 @@ class SqueezeNetWithSkipConnections(nn.Module):
         self.final_conv = nn.Conv2d(ei7, 1, kernel_size=1)
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
 
-    def _get_ei_for_layer(self, i):
+    def _get_ei_for_layer(self, i:int):
         incr_e = self.config['incr_e']
         base_e = self.config['base_e']
-        freq = 2 #Residual structure expects freq=2
+        freq = 2 #Residual connections structure expects freq=2
         pct_3x3 = self.config['pct_3x3']
         sr = self.config['sr']
         ei = base_e + (incr_e * np.floor((i / freq)))
@@ -100,7 +92,7 @@ class SqueezeNetWithSkipConnections(nn.Module):
         expand_3x3 = int(ei * pct_3x3)
         return squeeze_1x1, expand_1x1, expand_3x3, int(ei)
     
-    def forward(self, x):
+    def forward(self, x:torch.Tensor):
         x = self.stem(x)
         x = self.fire2(x)
         res1 = x
@@ -120,3 +112,51 @@ class SqueezeNetWithSkipConnections(nn.Module):
         x = self.final_conv(x)
         x = self.avg_pool(x)
         return x.view(x.size(0), -1)  # output shape is (batch_size, 1)
+
+class SimpleCNN(nn.Module):
+    def __init__(self, config:dict, input_shape:Tuple[int, int, int]):
+        super().__init__()
+        self.config = config
+        kernels = self.config['kernels']
+        dropout_rate = self.config['dropout']
+        fc_units = self.config['fc_units']
+        self.network =  nn.Sequential(
+            nn.Conv2d(3, kernels[0], kernel_size=3, padding="same"),
+            nn.ReLU(),
+            nn.Dropout2d(dropout_rate), 
+            nn.Conv2d(kernels[0], kernels[1], kernel_size=3, padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+            nn.Conv2d(kernels[1], kernels[2], kernel_size=3),
+            nn.ReLU(),
+            nn.Dropout2d(dropout_rate),
+            nn.Conv2d(kernels[2], kernels[3], kernel_size=3),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+            nn.Flatten()
+        )
+        self.network.add_module("fc", nn.Linear(self._find_fc_layer_shape(self.network, input_shape), fc_units))
+        self.network.add_module("fc2", nn.Linear(fc_units,1))
+
+    def forward(self, x:torch.Tensor):
+        return self.network(x)
+    
+    def _find_fc_layer_shape(self, network:nn.Module, input_shape:Tuple[int, int, int]) -> int:
+        """Finds the number of neurons that feed into a model's fully dense layers
+
+        Args:
+            network (nn.Module): A network that contains a flatten layer where the Linear layers are to be added
+            input_shape (tuple): Input shape of one image (num channels, image height, image width)
+
+        Returns:
+            int: The number of units that the model's Flatten() layer outputs
+        """
+        batch_size = 1
+        dummy_input = torch.rand(batch_size, *input_shape)
+
+        with torch.no_grad():
+            for layer in network:
+                dummy_input = layer(dummy_input)
+                if isinstance(layer, nn.Flatten):
+                    break
+        return dummy_input.numel()
