@@ -15,7 +15,7 @@ https://www.youtube.com/watch?v=6U6-YJ1yjoQ
 The classifier has been set up to be executable on an [Apple Mac](./mac_inference) where it mutes the TV/laptop when advertisements are on.
 
 ## Demos
-[See report here] (https://api.wandb.ai/links/antonryoung02_org/g0l4czrq)
+[See report here](https://api.wandb.ai/links/antonryoung02_org/g0l4czrq)
 
 ## Progress
 
