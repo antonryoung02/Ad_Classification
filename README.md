@@ -6,6 +6,9 @@ This repository contains the code used to collect data, preprocess data, train a
 
 *Note: Unfortunately, I have not included the model weights due to it being trained on copyrighted material.*
 
+## Demos
+[See report here](https://api.wandb.ai/links/antonryoung02_org/g0l4czrq)
+
 ## Motivation
 
 https://www.youtube.com/watch?v=6U6-YJ1yjoQ
@@ -13,9 +16,6 @@ https://www.youtube.com/watch?v=6U6-YJ1yjoQ
 ## Use Cases
 
 The classifier has been set up to be executable on an [Apple Mac](./mac_inference) where it mutes the TV/laptop when advertisements are on.
-
-## Demos
-[See report here](https://api.wandb.ai/links/antonryoung02_org/g0l4czrq)
 
 ## Progress
 
