@@ -23,7 +23,7 @@ Identified remaining issues:
 
 Data quality -- Some incorrectly labeled data and rare / irrelevant events. Still some concerns with data leakage due to images being captured 3 seconds apart
 
-Model size -- I will quantize the model in float16 and try parameter pruning to further reduce the size and number of parameters
+Model size -- I will quantize the model in float16 and try model pruning to further reduce the size and number of parameters
 
 ### June 2024
 
