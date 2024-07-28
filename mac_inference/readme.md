@@ -16,6 +16,6 @@ cd to `Ad_Classification`.
 
 `cd mac_inference`
 
-Start the inference: `bash ./mac_inference.sh`
+Start the inference: `./inference.sh`
 
 Interrupt the script with `CTRL C` to end execution
