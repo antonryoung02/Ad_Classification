@@ -58,6 +58,8 @@ class CNN(pl.LightningModule):
         return {"loss": loss, "preds": preds, "probs":probs, "labels": labels}
     
     def predict_step(self, batch:torch.Tensor, batch_idx:int=None) -> torch.Tensor:
-        logits = self.forward(batch)
-        return torch.round(torch.sigmoid(logits))
+        self.eval()
+        with torch.no_grad():
+            logits = self.forward(batch)
+            return torch.round(torch.sigmoid(logits))
 

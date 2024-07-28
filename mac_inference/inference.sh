@@ -25,14 +25,17 @@ while true; do
         read -r ad_signal < "$AD_SIGNAL_PATH"
 
         if [ "$ad_signal" = "True" ]; then
-            ad_signal_history=(1 "${ad_signal_history[@]:0:2}")
+            #ad_signal_history=(1 "${ad_signal_history[@]:0:2}")
+            prediction=1
         else
-            ad_signal_history=(0 "${ad_signal_history[@]:0:2}")
+            #ad_signal_history=(0 "${ad_signal_history[@]:0:2}")
+            prediction=0
         fi
 
+
         #Rolling average
-        sum=$((${ad_signal_history[0]} + ${ad_signal_history[1]} + ${ad_signal_history[2]}))
-        prediction=$(echo "$sum / 3" | bc -l)
+        #sum=$((${ad_signal_history[0]} + ${ad_signal_history[1]} + ${ad_signal_history[2]}))
+        #prediction=$(echo "$sum / 3" | bc -l)
         #prediction="${ad_signal_history[0]}"
 
         if (( $(echo "$prediction > 0.5" | bc -l) )); then

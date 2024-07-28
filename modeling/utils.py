@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from typing import Tuple, Dict
-
+    
 class FireModule(torch.nn.Module):
     def __init__(self, in_channels:int, num_squeeze_1x1:int, num_expand_1x1:int, num_expand_3x3:int):
         """
