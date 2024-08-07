@@ -18,9 +18,9 @@ import pytorch_lightning as pl
 MODEL_CHECKPOINT_PATH="./example.ckpt"
 IMAGE_PATH="./images/image.png"
 AD_SIGNAL_PATH="./ad_signal.txt"
-POS_DIR="../raw_data/collected_data_pos"
-NEG_DIR="../raw_data/collected_data_neg"
-RECORD_DATA=False
+POS_DIR="/Users/anton/Library/Mobile Documents/com~apple~CloudDocs/hockey_benchmarks/NHLPileups"
+NEG_DIR="/Users/anton/Library/Mobile Documents/com~apple~CloudDocs/hockey_benchmarks/NHLPileups"
+RECORD_DATA=True
 CONFIG = {
     "base_e": 128,
     "batch_size":256,
@@ -59,12 +59,24 @@ def run_inference(model:pl.LightningModule, record_data:bool, image_path:str) ->
         unique_filename = f"{time.strftime('%Y%m%d_%H%M%S')}_image.png"
         new_dir = POS_DIR if prediction > 0.5 else NEG_DIR
         new_path = os.path.join(new_dir, unique_filename)
-        shutil.move(image_path, new_path)
+        try:
+            save_preprocessed_image(image, new_path)
+            os.remove(image_path)
+        except Exception as e:
+            print(f"Failed to save image: {e}")
     else:
         os.remove(image_path)
     print(prediction)
     return prediction
 
+def save_preprocessed_image(image_tensor, save_path):
+    image_tensor = image_tensor.squeeze(0)  # Remove batch dimension
+    image_tensor = v2.Normalize(
+        mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], #Inverts imagenet normalization constants
+        std=[1/0.229, 1/0.224, 1/0.225]
+    )(image_tensor)
+    image = v2.ToPILImage()(image_tensor)
+    image.save(save_path)
 
 def main():
     model = CNN.load_from_checkpoint(checkpoint_path=MODEL_CHECKPOINT_PATH, config=CONFIG)
@@ -83,4 +95,6 @@ def main():
                 file.write(prediction)
 
 if __name__ == "__main__":
+    os.makedirs(POS_DIR, exist_ok=True)
+    os.makedirs(NEG_DIR, exist_ok=True)
     main()

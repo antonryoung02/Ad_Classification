@@ -25,11 +25,18 @@ def convert_pt_to_coreml(model_path:str, new_name:str):
     example_input = torch.rand(1, 3, 224, 224) 
     traced_model = torch.jit.trace(model, example_input)
     out = traced_model(example_input)
+
+    scale = 1.0 / (255.0 * 0.226)
+    red_bias = -0.485 / 0.226
+    green_bias = -0.456 / 0.226
+    blue_bias = -0.406 / 0.226
+    input = ct.ImageType(name='input', bias=[red_bias, green_bias, blue_bias], scale=scale, shape=(1, 3, 224, 224), color_layout='RGB')
+
     
     core_model = ct.convert(
         traced_model,
         convert_to="mlprogram",
-        inputs=[ct.TensorType(shape=example_input.shape)]
+        inputs=[input]
     )
     core_model.save(f"{new_name}.mlpackage")
 
