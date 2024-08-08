@@ -29,3 +29,22 @@ query_params = {"page_size":40}
 query = OpenverseQuery(query_str=query_string, query_params=query_params)
 images = ov.get_images(query, token)
 ov.save_images_to_directory(images, "./downloaded_images")
+
+good_search_queries = [
+    'hockey playoffs',
+    'hockey fights',
+    'hockey bench',
+    'hockey interview',
+    'hockey goalie',
+    'hockey arena ice',
+    'hockey <team name>',
+    'ice hockey goal',
+    'hockey penalty',
+    'hockey overtime',
+    'hockey save',
+    'hockey crowd',
+    'hockey fans',
+    'ice hockey fans',
+    'hockey face off',
+    'ice hockey college',
+]

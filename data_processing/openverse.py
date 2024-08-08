@@ -138,13 +138,3 @@ class OpenverseQuery:
     def get_query_params(self):
         return self.query_params
                 
-                
-# class Metadata         
-        
-        
-            
-            
-            
-            
-            
-            
