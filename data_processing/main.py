@@ -28,7 +28,7 @@ query_string = "hockey"
 query_params = {"page_size":40}
 query = OpenverseQuery(query_str=query_string, query_params=query_params)
 images = ov.get_images(query, token)
-ov.save_images_to_directory(images, "./downloaded_images")
+ov.save_images_to_directory(images, "/Users/anton/Downloads/Coding/Ad_Classification/downloaded_images")
 
 good_search_queries = [
     'hockey playoffs',

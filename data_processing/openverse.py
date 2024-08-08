@@ -2,9 +2,19 @@
 import pandas as pd
 import requests
 import json
+import sys
 import os
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
+from data_processing.metadata_dataframe import MetadataDataframe
+import datetime
+from PIL import Image
+import io
 
 class Openverse:
+    def __init__(self):
+        self.dataframe = MetadataDataframe()
+        
     def register(self):
         url = 'https://api.openverse.org/v1/auth_tokens/register/'
         data = {
@@ -41,7 +51,7 @@ class Openverse:
             print(f"Error {response.status_code}: {response.text}")
 
     def get_access_token(self):
-        with open('./data_processing/openverse_credentials.json', 'r') as file:
+        with open('/Users/anton/Downloads/Coding/Ad_Classification/data_processing/openverse_credentials.json', 'r') as file:
             data = json.load(file)
             client_id = data.get('client_id')
             client_secret = data.get('client_secret')
@@ -90,35 +100,46 @@ class Openverse:
             self.download_image(image, save_dir)
             
     def download_image(self, image, save_dir):
+        image_id = image['id']
         image_url = image['url']
-        filetype = image['filetype'] # Use 'jpg' as default if filetype is None
+        filetype = image['filetype']
         if filetype is None:
-            filetype = "jpg"
-        
+            filetype = "jpeg"
+        attribution = image['attribution']
+        image_name = os.path.basename(image_id) + '.' + filetype
+        image_path = os.path.join(save_dir, image_name)
+
         response = requests.get(image_url)
         if response.status_code == 200:
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            
-            image_name = os.path.basename(image['id']) + '.' + filetype
-            image_path = os.path.join(save_dir, image_name)
-            
-            with open(image_path, 'wb') as f:
-                f.write(response.content)
-            
-            print(f"Downloaded {image_name}")
+            try:
+                with Image.open(io.BytesIO(response.content)) as img:
+                    img = img.resize((224, 224), Image.Resampling.LANCZOS)
+                    img.save(image_path, format=filetype.upper())  # Save resized image
+                metadata_dict = {
+                    "id": image_id, 
+                    "url": image_url, 
+                    "attribution": attribution, 
+                    "filepath": image_path, 
+                    "timestamp": datetime.datetime.now().isoformat()
+                }
+                self.dataframe.insert(metadata_dict)
+                self.dataframe.save()
+            except IOError:
+                print(f"Error processing the image from {image_url}")
         else:
             print(f"Failed to download {image_url}: {response.status_code}")
 
-        
-        
+            
+            
 
 class OpenverseQuery:
     def __init__(self, query_str, query_params):
         self.query_params = {"q":query_str,'license': 'by,by-sa,cc0,pdm', 'license_type': 'commercial,modification'}
         self.accepted_params = {
-            "page", "page_size", "q", "source", "excluded_source", "tags", "title",
-            "creator", "unstable__collection", "unstable__tag", "license", "license_type",
+            "page", "page_size", "source", "excluded_source", "tags", "title",
+            "creator", "unstable__collection", "unstable__tag",
             "filter_dead", "extension", "mature", "unstable__sort_by", "unstable__sort_dir",
             "unstable__authority", "unstable__authority_boost", "unstable__include_sensitive_results",
             "category", "aspect_ratio", "size"

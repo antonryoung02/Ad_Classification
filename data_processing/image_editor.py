@@ -1,12 +1,17 @@
+import sys
 import os
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
 import argparse
 from PIL import Image, ImageTk, ImageFilter
 import tkinter as tk
+from data_processing.metadata_dataframe import MetadataDataframe
 
 class ImageEditor:
     def __init__(self, data_path, metadata_path=None):
         self.data_path = data_path
         self.metadata_path = metadata_path
+        self.metadata_dataframe = MetadataDataframe()
         self.image_index = 0
         self.files = [f for f in os.listdir(self.data_path) if os.path.isfile(os.path.join(self.data_path, f))]
 
@@ -64,7 +69,7 @@ class ImageEditor:
         img = self.display_image.resize(
             (int(self.display_image.width * self.zoom_factor),
              int(self.display_image.height * self.zoom_factor)),
-            Image.LANCZOS
+            Image.Resampling.LANCZOS
         )
         img = ImageTk.PhotoImage(img)
         self.image_label.config(image=img)
@@ -128,6 +133,8 @@ class ImageEditor:
         file_path = self.get_file_path()
         if os.path.exists(file_path):
             os.remove(file_path)
+            self.metadata_dataframe.delete(file_path=file_path)
+            self.metadata_dataframe.save()
             self.files.pop(self.image_index)
             if self.image_index >= len(self.files):
                 self.image_index = len(self.files) - 1
