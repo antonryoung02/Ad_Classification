@@ -2,8 +2,8 @@ import pandas as pd
 import os
 
 class MetadataDataframe:
-    def __init__(self):
-        self.filepath = "/Users/anton/Downloads/Coding/Ad_Classification/data_processing/metadata.csv" 
+    def __init__(self, filepath):
+        self.filepath = filepath
         if os.path.exists(self.filepath) and os.stat(self.filepath).st_size != 0:
             self.dataframe = pd.read_csv(self.filepath)
         else:
@@ -16,7 +16,11 @@ class MetadataDataframe:
         if not required_keys <= data_dict.keys():
             missing_keys = required_keys - data_dict.keys()
             raise ValueError(f"Missing keys: {missing_keys}")
-        
+
+        if 'filepath' in data_dict and data_dict['filepath'] in self.dataframe['filepath'].values:
+            print("removing duplicate image")
+            self.dataframe = self.dataframe[self.dataframe['filepath'] != data_dict['filepath']]
+
         new_row = pd.DataFrame([data_dict])
         self.dataframe = pd.concat([self.dataframe, new_row], ignore_index=True)
     

@@ -3,15 +3,20 @@ import os
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 import argparse
+
+import dotenv
+dotenv_path = os.path.join(root_dir, '.env')
+dotenv.load_dotenv(dotenv_path)
+
 from PIL import Image, ImageTk, ImageFilter
 import tkinter as tk
 from data_processing.metadata_dataframe import MetadataDataframe
 
+# Run as a script python image_editor.py <'absolute_path_to_data_directory'> 
 class ImageEditor:
-    def __init__(self, data_path, metadata_path=None):
+    def __init__(self, data_path, metadata_dataframe):
         self.data_path = data_path
-        self.metadata_path = metadata_path
-        self.metadata_dataframe = MetadataDataframe()
+        self.metadata_dataframe = metadata_dataframe
         self.image_index = 0
         self.files = [f for f in os.listdir(self.data_path) if os.path.isfile(os.path.join(self.data_path, f))]
 
@@ -156,13 +161,8 @@ class ImageEditor:
         self.root.destroy()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Image Editor")
-    parser.add_argument("data_path", help="Path to the directory containing images")
-    parser.add_argument("--metadata_path", help="Path to the metadata file", default=None)
-
-    args = parser.parse_args()
-
-    if not os.path.isdir(args.data_path):
-        raise NotADirectoryError(f"The specified data path does not exist or is not a directory: {args.data_path}")
-
-    image_editor = ImageEditor(data_path=args.data_path, metadata_path=args.metadata_path)
+    #get data path and metadata path from env not cl args
+    data_path = os.getenv("DATASET_DIRECTORY")
+    metadata_path =os.getenv("METADATA_PATH")
+    meta_df = MetadataDataframe(metadata_path)
+    image_editor = ImageEditor(data_path=data_path, metadata_dataframe=meta_df)

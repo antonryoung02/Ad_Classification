@@ -12,6 +12,7 @@ pi_inference/data
 *.mlpackage
 *.ckpt
 *.json
+*.env
 
 wandb/
 **/wandb/
