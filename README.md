@@ -25,6 +25,13 @@ Data quality -- Some incorrectly labeled data and rare / irrelevant events. Stil
 
 Model size -- I will quantize the model in float16 and try model pruning to further reduce the size and number of parameters
 
+### July-August 2024
+
+I stopped using copyright data to train my model. Instead, I gathered for commercial use sports images from Openverse and created synthetic data with OpenAI
+
+Added model conversions to coreML format for use within in a macOS application
+
+
 ### June 2024
 
 I switched to pytorch lightning for a more organized training procedure and better compatability with Weights & Biases. 
