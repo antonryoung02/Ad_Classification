@@ -4,38 +4,38 @@ hockey bench
 hockey interview
 hockey goalie
 hockey arena ice
-hockey Ducks
-hockey Coyotes
-hockey Bruins
-hockey Sabres
-hockey Flames
-hockey Hurricanes
-hockey Blackhawks
-hockey Avalanche
-hockey Blue Jackets
-hockey Stars
-hockey Red Wings
-hockey Oilers
-hockey Panthers
-hockey Kings
-hockey Wild
-hockey Canadiens
-hockey Predators
-hockey Devils
-hockey Islanders
-hockey Rangers
-hockey Senators
-hockey Flyers
-hockey Penguins
-hockey Sharks
-hockey Kraken
-hockey Blues
-hockey Lightning
-hockey Maple Leafs
-hockey Canucks
-hockey Golden Knights
-hockey Capitals
-hockey Jets
+ice hockey Anaheim Ducks
+ice hockey Arizona Coyotes
+ice hockey Boston Bruins
+ice hockey Buffalo Sabres
+ice hockey Calgary Flames
+ice hockey Carolina Hurricanes
+ice hockey Chicago Blackhawks
+ice hockey Colorado Avalanche
+ice hockey Columbus Blue Jackets
+ice hockey Dallas Stars
+ice hockey Detroit Red Wings
+ice hockey Edmonton Oilers
+ice hockey Florida Panthers
+ice hockey Los Angeles Kings
+ice hockey Minnesota Wild
+ice hockey Montreal Canadiens
+ice hockey Nashville Predators
+ice hockey New Jersey Devils
+ice hockey New York Islanders
+ice hockey New York Rangers
+ice hockey Ottawa Senators
+ice hockey Philadelphia Flyers
+ice hockey Pittsburgh Penguins
+ice hockey San Jose Sharks
+ice hockey Seattle Kraken
+ice hockey St. Louis Blues
+ice hockey Tampa Bay Lightning
+ice hockey Toronto Maple Leafs
+ice hockey Vancouver Canucks
+ice hockey Vegas Golden Knights
+ice hockey Washington Capitals
+ice hockey Winnipeg Jets
 ice hockey goal
 hockey penalty
 hockey overtime
