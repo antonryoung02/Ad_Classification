@@ -21,9 +21,15 @@ The classifier has been set up to be executable on an [Apple Mac](./mac_inferenc
 
 Identified remaining issues:
 
-Data quality -- Some incorrectly labeled data and rare / irrelevant events. Still some concerns with data leakage due to images being captured 3 seconds apart
+Gather synthetic data 
 
-Model size -- I will quantize the model in float16 and try model pruning to further reduce the size and number of parameters
+### July-August 2024
+
+I stopped using copyright data to train my model. Instead, I gathered for commercial use sports images from Openverse
+
+Added model conversions to coreML format for use within in a macOS application
+
+Model inference on coreML for Mac M1 is < 1ms
 
 ### June 2024
 
