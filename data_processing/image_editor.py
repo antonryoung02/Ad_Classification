@@ -12,7 +12,7 @@ from PIL import Image, ImageTk, ImageFilter
 import tkinter as tk
 from data_processing.metadata_dataframe import MetadataDataframe
 
-# Run as a script python image_editor.py <'absolute_path_to_data_directory'> 
+# Run as a script python image_editor.py <'absolute_path_to_data_directory'>
 class ImageEditor:
     def __init__(self, data_path, metadata_dataframe):
         self.data_path = data_path
