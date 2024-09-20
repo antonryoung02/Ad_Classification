@@ -4,20 +4,79 @@ import random
 from abc import ABC, abstractmethod
 import torch
 from typing import Tuple
+from itertools import accumulate
 
 class AbstractTransformation(ABC):
     """Defines an interface for Transformation classes used in the AugmentedImageFolder"""
     @abstractmethod
-    def transform(self, image:torch.Tensor) -> None:
+    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
         pass
 
+class TransformationSampler(AbstractTransformation):
+    """Class for applying a random transformation with label-specific probability."""
+    def __init__(self, transformations:list[AbstractTransformation], pos_probs:list[float], neg_probs:list[float] | None=None):
+        """
+        Args:
+            transformations (list[AbstractTransformation]): List of transformations to sample from
+            pos_probs (list[float)): List of transformation sampling probabilities for the positive class
+            neg_probs (list[float] | None): List of transformation sampling probabilities for the negative class. Defaults to neg_prob=pos_prob
+        """
+        self._ensure_valid_init(transformations, pos_probs, neg_probs)
+        self.transformations = transformations
+        self.pos_probabilities = pos_probs
+        self.neg_probabilities = neg_probs
+        
+    
+    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
+        """Method that performs the random augmentation
+
+        Args:
+            image (torch.Tensor): Tensor before augmentation
+
+        Returns:
+            torch.Tensor: Tensor after augmentation
+        """
+        prob = random.random()
+        transformation = self._choose_transformation(prob, label)
+        if transformation:
+            return transformation.transform(image, label)
+        return image
+        
+    def _choose_transformation(self, prob:float, label:int) -> AbstractTransformation | None:
+        """Helper method that finds the sampled transformation"""
+        if label == 0 and self.neg_probabilities:
+            probabilities = self.neg_probabilities
+        else:
+            probabilities = self.pos_probabilities
+
+        cumulative_probs = list(accumulate(probabilities))
+        for i, cumulative_prob in enumerate(cumulative_probs):
+            if prob < cumulative_prob:
+                return self.transformations[i]
+        return None
+        
+    def _ensure_valid_init(self, transformations:list[AbstractTransformation], pos_probs:list[float], neg_probs:list[float]|None=None):
+        """Helper method that ensures the class was initialized correctly"""
+        if len(transformations) != len(pos_probs):
+            raise ValueError(f"Expected len(transformations) {len(transformations)} to equal len(pos_probs) {len(pos_probs)}")
+        if neg_probs and len(transformations) != len(neg_probs): 
+            raise ValueError(f"Expected len(transformations) {len(transformations)} to equal len(neg_probs) {len(neg_probs)}")
+        
+        if sum(pos_probs) > 1.0 or sum(pos_probs) < 0.0:
+            raise ValueError("Expected sum of pos_probs to be 0 <= sum <= 1.0")
+        if neg_probs and (sum(neg_probs) > 1.0 or sum(neg_probs) < 0.0):
+            raise ValueError("Expected sum of neg_probs to be 0 <= sum <= 1.0")
+        
+        if not all(isinstance(t, AbstractTransformation) for t in transformations):
+            raise ValueError("All elements in 'transformations' must be instances of AbstractTransformation.")
+    
 class TrainTransformation(AbstractTransformation):
     """An instance of AbstractTransformation.
 
         Applies v2.ColorJitter, v2.RandomGrayscale, v2.RandomAdjustSharpness, v2.RandomHorizontalFlip,
         v2.RandomResizedCrop, and v2.Normalize transforms
     """
-    def transform(self, image:torch.Tensor) -> torch.Tensor:
+    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
         """Method that defines the augmentation steps
 
         Args:
@@ -38,7 +97,7 @@ class TrainTransformation(AbstractTransformation):
     
 class AugmentedImageFolder(ImageFolder):
     """ Dataset that performs image augmentation when data is accessed. Inherits from torchvision.datasets.ImageFolder"""
-    def __init__(self, root:str, transform:v2.Compose, augmentation:AbstractTransformation=None):
+    def __init__(self, root:str, transform:v2.Compose, augmentation:AbstractTransformation|None=None):
         """
         Args:
             root (str): Path to data folders
@@ -60,6 +119,6 @@ class AugmentedImageFolder(ImageFolder):
         """
         image, label = super().__getitem__(index)
         if self.augmentation:
-            image = self.augmentation.transform(image)
+            image = self.augmentation.transform(image, label)
 
         return image, label
