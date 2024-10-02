@@ -7,7 +7,7 @@ from torch.optim import Optimizer
 from modeling.utils import SqueezeNetWithSkipConnections, SimpleCNN
 from abc import ABC, abstractmethod
 from typing import Tuple, Optional, Dict
-
+from torch.optim.lr_scheduler import StepLR
 class AbstractModelInitializer(ABC):
     """Interface needed to add a new Model Initializer"""
     @abstractmethod
@@ -25,10 +25,10 @@ class SqueezeNetInitializer(AbstractModelInitializer):
         base_e: The number of expand filters in the first fire module
         incr_e: The Number of expand filters added every 2 fire modules
     """
-    def __init__(self, config:Dict[str, any]):
+    def __init__(self, config:dict):
         self.config = config
 
-    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[_LRScheduler]]:
+    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[StepLR]]:
         model = self.get_model(input_shape)
         optimizer = self.get_optimizer(model)
         scheduler = self.get_scheduler(optimizer)
@@ -46,14 +46,14 @@ class SqueezeNetInitializer(AbstractModelInitializer):
         model.apply(self._initialize_weights)
         return model
     
-    def get_scheduler(self, optimizer:Optimizer) -> _LRScheduler:
+    def get_scheduler(self, optimizer:Optimizer) -> StepLR:
         lr_gamma = self.config['lr_gamma']
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=lr_gamma)
+        scheduler = StepLR(optimizer, step_size=5, gamma=lr_gamma)
         return scheduler
 
     def get_criterion(self) -> _Loss:
         # Squeezenet seems to be sensitive to class imbalances
-        class_weights = torch.tensor([1.5], dtype=torch.float).to(self.get_device())
+        class_weights = torch.tensor([0.7], dtype=torch.float).to(self.get_device())
         return nn.BCEWithLogitsLoss(pos_weight=class_weights)
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
@@ -76,7 +76,7 @@ class SimpleCNNInitializer(AbstractModelInitializer):
         base_e: The number of expand filters in the first fire module
         incr_e: The Number of expand filters added every 2 fire modules
     """
-    def __init__(self, config:Dict[str, any]):
+    def __init__(self, config:dict):
         self.config = config
 
     def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[_LRScheduler]]:

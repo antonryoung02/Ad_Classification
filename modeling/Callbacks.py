@@ -3,6 +3,7 @@ import pytorch_lightning as pl
 import torch
 from typing import Dict, Tuple
 from torch.optim import Optimizer
+from lightning.pytorch.loggers import WandbLogger
 
 class MetricsLogger(pl.Callback):
     """Logs metrics to module logger on every epoch and end of training.
@@ -10,7 +11,7 @@ class MetricsLogger(pl.Callback):
     """
     def __init__(self):
         super().__init__()
-        self.metrics = None
+        self.metrics = {}
 
     def on_train_batch_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule, outputs:Dict[str, torch.Tensor], batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int):
         preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
@@ -54,20 +55,23 @@ class MetricsLogger(pl.Callback):
         pl_module.valid_auroc.reset()
 
     def on_fit_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule) -> None:
-        trainer.logger.experiment.log({
-            f'fold_{pl_module.fold_idx}/Validation_Precision': self.metrics['Validation_Precision'],
-            f'fold_{pl_module.fold_idx}/Validation_Recall': self.metrics['Validation_Recall'],
-            f'fold_{pl_module.fold_idx}/Validation_F1_Score': self.metrics['Validation_F1_Score'],
-            f'fold_{pl_module.fold_idx}/Validation_AUROC': self.metrics['Validation_AUROC'],
-            'fold': pl_module.fold_idx,
-        })
+        if isinstance(trainer.logger, WandbLogger):
+            trainer.logger.experiment.log({
+                f'fold_{pl_module.fold_idx}/Validation_Precision': self.metrics['Validation_Precision'],
+                f'fold_{pl_module.fold_idx}/Validation_Recall': self.metrics['Validation_Recall'],
+                f'fold_{pl_module.fold_idx}/Validation_F1_Score': self.metrics['Validation_F1_Score'],
+                f'fold_{pl_module.fold_idx}/Validation_AUROC': self.metrics['Validation_AUROC'],
+                'fold': pl_module.fold_idx,
+            })
+        else:
+            raise ValueError("trainer does not have a wandb logger attached!")
 
-    def get_epoch_metrics(self) -> Dict[str, float]:
+    def get_epoch_metrics(self) -> dict:
         return self.metrics
 
 class GradientNormLogger(pl.Callback):
     """Logs the l2 gradient norm of each layer in the network for debugging purposes"""
-    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int=None) -> None:
+    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int|None=None) -> None:
         grad_norms = {}
         for name, param in pl_module.named_parameters():
             if param.grad is not None:
@@ -78,7 +82,10 @@ class GradientNormLogger(pl.Callback):
             else:
                 grad_norms[f"grad_norm_{name}"] = 0.0
                 print(f"Warning: No gradient for layer {name}")
-        trainer.logger.experiment.log(grad_norms)
+        if isinstance(trainer.logger, WandbLogger):
+            trainer.logger.experiment.log(grad_norms)
+        else:
+            raise ValueError("trainer does not have a wandb logger attached!")
 
 class KWorstPredictionsLogger(pl.Callback):
     """Uses the wandb logger to log images of the fully trained model's 5 worst validation set losses"""
@@ -96,17 +103,20 @@ class KWorstPredictionsLogger(pl.Callback):
 
         pl_module.eval()
         with torch.no_grad():
-            for batch_idx, (val_imgs, val_labels) in enumerate(trainer.val_dataloaders):
-                val_imgs = val_imgs.to(device)
-                val_labels = val_labels.to(device)
+            if trainer.val_dataloaders:
+                for batch_idx, (val_imgs, val_labels) in enumerate(trainer.val_dataloaders):
+                    val_imgs = val_imgs.to(device)
+                    val_labels = val_labels.to(device)
 
-                logits = pl_module.forward(val_imgs).squeeze()
-                losses = criterion(logits, val_labels.float())
+                    logits = pl_module.forward(val_imgs).squeeze()
+                    losses = criterion(logits, val_labels.float())
 
-                all_imgs.append(val_imgs)
-                all_labels.append(val_labels)
-                all_losses.append(losses)
-                all_probs.append(torch.sigmoid(logits))
+                    all_imgs.append(val_imgs)
+                    all_labels.append(val_labels)
+                    all_losses.append(losses)
+                    all_probs.append(torch.sigmoid(logits))
+            else:
+                raise ValueError("Can't use a KWorstPredictionsLogger with no validation set(s)!")
 
         all_imgs = torch.cat(all_imgs)
         all_labels = torch.cat(all_labels)
@@ -118,10 +128,13 @@ class KWorstPredictionsLogger(pl.Callback):
         topk_labels = all_labels[topk_indices]
         topk_probs = all_probs[topk_indices]
 
-        trainer.logger.experiment.log({
-            "Worst Predictions By Model": [
-                wandb.Image(img.cpu(), caption=f"P(Advertisement):{prob.item():.3f}, Label:{label.item()}")
-                for img, prob, label in zip(topk_imgs, topk_probs, topk_labels)
-            ], 
-            "fold":pl_module.fold_idx
-        })
+        if isinstance(trainer.logger, WandbLogger):
+            trainer.logger.experiment.log({
+                "Worst Predictions By Model": [
+                    wandb.Image(img.cpu(), caption=f"P(Advertisement):{prob.item():.3f}, Label:{label.item()}")
+                    for img, prob, label in zip(topk_imgs, topk_probs, topk_labels)
+                ], 
+                "fold":pl_module.fold_idx
+            })
+        else:
+            raise ValueError("trainer does not have a wandb logger attached!")

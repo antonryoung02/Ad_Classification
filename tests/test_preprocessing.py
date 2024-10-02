@@ -14,6 +14,7 @@ def simulate_data_augmentation_method(augmentation:AbstractTransformation, inver
     input_dir = "./tests/test_input"
     output_dir = "./tests/test_output"
     clear_directory(output_dir)
+    num_images = 10
 
     train_transform  = v2.ToTensor()
     invert_train_transform = v2.Normalize(
@@ -23,6 +24,8 @@ def simulate_data_augmentation_method(augmentation:AbstractTransformation, inver
     train_data_folder = AugmentedImageFolder(root=input_dir, transform=train_transform, augmentation=augmentation)
 
     for i, augmented_tensor in enumerate(train_data_folder):
+        if i > num_images:
+            break
         if invert_normalization:
             augmented_tensor = invert_train_transform(augmented_tensor)
         augmented_image = to_pil_image(augmented_tensor[0])
@@ -66,9 +69,9 @@ def view_image_intensity_profile():
     
 def main():
     dt = TrainTransformation()
-    #simulate_data_augmentation_method(dt, invert_normalization=False)
+    simulate_data_augmentation_method(dt, invert_normalization=True)
     #view_image_histograms()
-    view_image_intensity_profile()
+    # view_image_intensity_profile()
 
 if __name__ == "__main__":
     main()

@@ -19,9 +19,9 @@ from typing import Dict
 
 def main():
     wandb.login()
-    train_best_model(best_config_dict)
-    # sweep_id = wandb.sweep(squeeze_sweep_config, project="Ad_Classification")
-    # wandb.agent(sweep_id, k_fold_cross_validation, count=1)
+    # train_best_model(best_config_dict)
+    sweep_id = wandb.sweep(squeeze_sweep_config, project="Ad_Classification")
+    wandb.agent(sweep_id, k_fold_cross_validation, count=15)
 
 def k_fold_cross_validation(k:int=4):
     with wandb.init():
@@ -31,8 +31,8 @@ def k_fold_cross_validation(k:int=4):
         val_transform = v2.Compose([v2.ToTensor(), v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         train_transform  = v2.Compose([v2.ToTensor()])
         train_augmentation = TrainTransformation()
-        train_data_folder = AugmentedImageFolder(root="data", transform=train_transform, augmentation=train_augmentation)
-        val_data_folder = AugmentedImageFolder(root="data", transform=val_transform, augmentation=None) 
+        train_data_folder = AugmentedImageFolder(root="../FootballVA", transform=train_transform, augmentation=train_augmentation)
+        val_data_folder = AugmentedImageFolder(root="../FootballVA", transform=val_transform, augmentation=None) 
         indices = torch.randperm(len(train_data_folder)).tolist()
 
         metrics = {
@@ -69,7 +69,6 @@ def k_fold_cross_validation(k:int=4):
                     ],
                 logger=wandb_logger,
                 gradient_clip_val=0.5,
-                overfit_batches=5,
             )
             
             trainer.fit(model, train_loader, val_loader)
@@ -85,8 +84,8 @@ def k_fold_cross_validation(k:int=4):
         wandb.log(avg_metrics)
         wandb.finish()
 
-def train_best_model(config:Dict[str, any]):
-    train_transform  = v2.ToTensor()
+def train_best_model(config:dict):
+    train_transform  = v2.Compose([v2.ToTensor()])
     train_augmentation = TrainTransformation()
     data_folder = AugmentedImageFolder(root="data", transform=train_transform, augmentation=train_augmentation)
     data_loader = DataLoader(data_folder, batch_size=config['batch_size'], shuffle=True, num_workers=29)
@@ -184,10 +183,10 @@ squeeze_sweep_config = {
             "values": ["squeezenet"]
         },
         "incr_e": {
-            "values": [96, 128, 160]
+            "values": [128, 160]
         },
         "sr": {
-            "values":[0.125, 0.1925, 0.25, 0.325]
+            "values":[0.1925, 0.25, 0.325]
         },
         "pct_3x3": {
             "values":[0.4, 0.5, 0.6]

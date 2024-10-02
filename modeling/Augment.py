@@ -86,7 +86,7 @@ class TrainTransformation(AbstractTransformation):
             torch.Tensor: Tensor after augmentation
         """
         transforms = v2.Compose([
-            v2.ColorJitter(brightness=(0.7,1), hue=.1, contrast=.1),
+            v2.ColorJitter(brightness=(0.7,1), hue=.4, contrast=.2), #hockey .1,.1, football .4,.2
             v2.RandomGrayscale(),
             v2.RandomAdjustSharpness(sharpness_factor=2*random.random()),
             v2.RandomHorizontalFlip(),

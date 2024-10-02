@@ -41,7 +41,7 @@ class FireModule(torch.nn.Module):
 
 class SqueezeNetWithSkipConnections(nn.Module):
     """Squeezenet architecture with simple residual connections between fire modules"""
-    def __init__(self, config:Dict[str, any], input_shape:Tuple[int, int, int]):
+    def __init__(self, config:dict, input_shape:Tuple[int, int, int]):
         """
         Initializes the model layers      
 
@@ -141,7 +141,7 @@ class SimpleCNN(nn.Module):
     def forward(self, x:torch.Tensor):
         return self.network(x)
     
-    def _find_fc_layer_shape(self, network:nn.Module, input_shape:Tuple[int, int, int]) -> int:
+    def _find_fc_layer_shape(self, network:nn.Sequential, input_shape:Tuple[int, int, int]) -> int:
         """Finds the number of neurons that feed into a model's fully dense layers
 
         Args:

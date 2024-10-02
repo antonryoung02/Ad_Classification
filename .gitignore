@@ -2,7 +2,7 @@ raw_data/
 modeling/data
 downloaded_images/
 data_processing/tests/test_output/
-
+data_processing/metadata.csv
 stop_signal.txt
 mac_inference/images
 pi_inference/data
@@ -14,6 +14,7 @@ pi_inference/data
 *.json
 *.env
 *.csv
+
 
 wandb/
 **/wandb/
