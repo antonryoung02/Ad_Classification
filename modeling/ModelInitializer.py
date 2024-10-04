@@ -8,10 +8,12 @@ from modeling.utils import SqueezeNetWithSkipConnections, SimpleCNN
 from abc import ABC, abstractmethod
 from typing import Tuple, Optional, Dict
 from torch.optim.lr_scheduler import StepLR
+
+
 class AbstractModelInitializer(ABC):
     """Interface needed to add a new Model Initializer"""
     @abstractmethod
-    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> None:
+    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[StepLR]]:
         pass
 
 class SqueezeNetInitializer(AbstractModelInitializer):
@@ -42,29 +44,38 @@ class SqueezeNetInitializer(AbstractModelInitializer):
                 nn.init.constant_(module.bias, 0)
 
     def get_model(self, input_shape:Tuple[int, int, int]) -> nn.Module:
-        model = SqueezeNetWithSkipConnections(self.config, input_shape)
+        model_config = self.config.pop('model')
+        model = SqueezeNetWithSkipConnections(model_config, input_shape)
         model.apply(self._initialize_weights)
         return model
     
     def get_scheduler(self, optimizer:Optimizer) -> StepLR:
-        lr_gamma = self.config['lr_gamma']
-        scheduler = StepLR(optimizer, step_size=5, gamma=lr_gamma)
+        scheduler_config = self.config.pop('scheduler', {})
+        gamma = scheduler_config.pop('gamma', 0.1)
+        step_size = scheduler_config.pop('step_size')
+        scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
         return scheduler
 
     def get_criterion(self) -> _Loss:
         # Squeezenet seems to be sensitive to class imbalances
-        class_weights = torch.tensor([0.7], dtype=torch.float).to(self.get_device())
-        return nn.BCEWithLogitsLoss(pos_weight=class_weights)
+        criterion_config = self.config.pop('criterion')
+        weight = [criterion_config.pop('pos_weight', 1.0)]
+        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
+        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         #Adam would not converge. But haven't tried with batch norm in the fire module
-        return optim.SGD(model.parameters(), lr=self.config['lr'], momentum=0.9, weight_decay=self.config['weight_decay'])
+        optimizer_config = self.config.pop('optimizer')
+        lr = optimizer_config.pop('lr')
+        momentum = optimizer_config.pop('momentum', 0.9)
+        weight_decay = optimizer_config.pop('weight_decay')
+        return optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
 
     def get_device(self) -> torch.device:
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-
+# TODO FIX THE CONFIG CHANGES
 class SimpleCNNInitializer(AbstractModelInitializer):
     """
     Initializer for SimpleCNN with hparams
@@ -94,7 +105,7 @@ class SimpleCNNInitializer(AbstractModelInitializer):
         return optim.Adam(model.parameters(), lr=self.config['lr'], weight_decay=self.config['weight_decay'])
 
 class ModelInitializerFactory:
-    def get_initializer(self, config:dict) -> Optional[AbstractModelInitializer]:
+    def __call__(self, config:dict) -> AbstractModelInitializer:
         """Returns a ModelInitializer depending on the value of config['initializer']
 
         Args:
@@ -103,12 +114,13 @@ class ModelInitializerFactory:
         Returns:
             BaseModelInitializer: Allows CNN class to initialize different architectures
         """
-        if 'initializer' not in config.keys():
-            raise KeyError('initializer not found in config')
+        if 'type' not in config.keys():
+            raise KeyError('initializer type not found in config')
         
-        if config['initializer'] == "simple_cnn":
-            return SimpleCNNInitializer(config)
-        elif config['initializer'] == "squeezenet":
-            return SqueezeNetInitializer(config)
-        else:
-            return None
+        match config['type']:
+            case "simple_cnn":
+                return SimpleCNNInitializer(config)
+            case "squeezenet":
+                return SqueezeNetInitializer(config)
+            case _:
+                raise ValueError(f"model type {config['type']} does not exist!")

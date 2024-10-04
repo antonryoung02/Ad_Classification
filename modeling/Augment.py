@@ -70,12 +70,15 @@ class TransformationSampler(AbstractTransformation):
         if not all(isinstance(t, AbstractTransformation) for t in transformations):
             raise ValueError("All elements in 'transformations' must be instances of AbstractTransformation.")
     
-class TrainTransformation(AbstractTransformation):
+class GeneralImageAugmentations(AbstractTransformation):
     """An instance of AbstractTransformation.
 
         Applies v2.ColorJitter, v2.RandomGrayscale, v2.RandomAdjustSharpness, v2.RandomHorizontalFlip,
         v2.RandomResizedCrop, and v2.Normalize transforms
     """
+    def __init__(self, config):
+        self.config = config
+        
     def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
         """Method that defines the augmentation steps
 
@@ -85,8 +88,11 @@ class TrainTransformation(AbstractTransformation):
         Returns:
             torch.Tensor: Tensor after augmentation
         """
+        hue = self.config.pop('hue')
+        contrast = self.config.pop('contrast')
+        
         transforms = v2.Compose([
-            v2.ColorJitter(brightness=(0.7,1), hue=.4, contrast=.2), #hockey .1,.1, football .4,.2
+            v2.ColorJitter(brightness=(0.7,1), hue=hue, contrast=contrast), #hockey .1,.1, football .4,.2
             v2.RandomGrayscale(),
             v2.RandomAdjustSharpness(sharpness_factor=2*random.random()),
             v2.RandomHorizontalFlip(),
@@ -122,3 +128,13 @@ class AugmentedImageFolder(ImageFolder):
             image = self.augmentation.transform(image, label)
 
         return image, label
+
+class AugmentationFactory:
+    def __call__(self, config):
+        match config['type']:
+            case 'general':
+                return GeneralImageAugmentations(config)
+            case _:
+                return None
+        
+        

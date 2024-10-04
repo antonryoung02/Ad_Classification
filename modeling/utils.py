@@ -50,8 +50,12 @@ class SqueezeNetWithSkipConnections(nn.Module):
             input_shape (tuple): Input shape of one image (num channels, image height, image width)
         """
         super().__init__()
-        dropout_rate = config['dropout']
         self.config = config
+        self.dropout_rate = config.pop('dropout')
+        self.incr_e = self.config.pop('incr_e')
+        self.base_e = self.config.pop('base_e')
+        self.pct_3x3 = self.config.pop('pct_3x3')
+        self.sr = self.config.pop('sr')
 
         self.stem = nn.Sequential(
             nn.Conv2d(input_shape[0], 96, kernel_size=7, stride=2),
@@ -59,7 +63,7 @@ class SqueezeNetWithSkipConnections(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True)
         )
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True)
-        self.dropout = nn.Dropout(dropout_rate)
+        self.dropout = nn.Dropout(self.dropout_rate)
         squeeze_1x1, expand_1x1, expand_3x3, ei0 = self._get_ei_for_layer(0)
         self.fire2 = FireModule(96, squeeze_1x1, expand_1x1, expand_3x3)
         squeeze_1x1, expand_1x1, expand_3x3, ei1  = self._get_ei_for_layer(1)
@@ -80,16 +84,12 @@ class SqueezeNetWithSkipConnections(nn.Module):
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
 
     def _get_ei_for_layer(self, i:int):
-        incr_e = self.config['incr_e']
-        base_e = self.config['base_e']
         freq = 2 #Residual connections structure expects freq=2
-        pct_3x3 = self.config['pct_3x3']
-        sr = self.config['sr']
-        ei = base_e + (incr_e * np.floor((i / freq)))
+        ei = self.base_e + (self.incr_e * np.floor((i / freq)))
 
-        squeeze_1x1 = int(ei * sr)
-        expand_1x1 = int(ei) - int(ei * pct_3x3)
-        expand_3x3 = int(ei * pct_3x3)
+        squeeze_1x1 = int(ei * self.sr)
+        expand_1x1 = int(ei) - int(ei * self.pct_3x3)
+        expand_3x3 = int(ei * self.pct_3x3)
         return squeeze_1x1, expand_1x1, expand_3x3, int(ei)
     
     def forward(self, x:torch.Tensor):
