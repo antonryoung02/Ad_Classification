@@ -65,7 +65,7 @@ class MobileNetInitializer(BaseModelInitializer):
                 {'params': depthwise_params, 'weight_decay': 0.0},
                 {'params': other_params, 'weight_decay': weight_decay}
             ],
-            lr=lr, alpha=alpha, momentum=momentum, weight_decay=weight_decay
+            lr=lr, alpha=alpha, momentum=momentum
         )
     
     def get_criterion(self) -> _Loss:
