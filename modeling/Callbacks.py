@@ -71,7 +71,7 @@ class MetricsLogger(pl.Callback):
 
 class GradientNormLogger(pl.Callback):
     """Logs the l2 gradient norm of each layer in the network for debugging purposes"""
-    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int|None=None) -> None:
+    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int) -> None:
         grad_norms = {}
         for name, param in pl_module.named_parameters():
             if param.grad is not None:

@@ -48,7 +48,7 @@ def save_as_coreml(model:nn.Module, filename:str):
     )
     current_date = datetime.now().strftime('%Y-%m-%d')
     core_model.save(f"{filename}.mlpackage")
-    
+        
 def save_as_pt(model:nn.Module, filename:str):
     state_dict = model.state_dict()
     torch.save(state_dict, f'{filename}.pt')

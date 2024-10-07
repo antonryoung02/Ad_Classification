@@ -42,11 +42,31 @@ class MobileNetInitializer(BaseModelInitializer):
         return MobileNet(self.config, input_shape)
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
+        """
+        Typical optimizer intitialization, but only applies weight decay to non-depthwise layers
+        as recommended in paper.
+        """
         lr = self.config['optimizer_lr']
         alpha = self.config['optimizer_alpha']
         momentum = self.config['optimizer_momentum']
         weight_decay = self.config['optimizer_weight_decay']
-        return optim.RMSprop(model.parameters(), lr=lr, alpha=alpha, momentum=momentum, weight_decay=weight_decay)
+       
+        # https://pytorch.org/docs/stable/optim.html 
+        depthwise_params = []
+        other_params = []
+        for name, param in model.named_parameters():
+            if 'depthwise_conv' in name:
+                depthwise_params.append(param)
+            else:
+                other_params.append(param)
+
+        return optim.RMSprop(
+            [
+                {'params': depthwise_params, 'weight_decay': 0.0},
+                {'params': other_params, 'weight_decay': weight_decay}
+            ],
+            lr=lr, alpha=alpha, momentum=momentum, weight_decay=weight_decay
+        )
     
     def get_criterion(self) -> _Loss:
         weight = [self.config['criterion_pos_weight']]
