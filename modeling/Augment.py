@@ -11,6 +11,10 @@ class AbstractTransformation(ABC):
     @abstractmethod
     def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
         pass
+    
+class NoAugmentation(AbstractTransformation):
+    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
+        return image
 
 class TransformationSampler(AbstractTransformation):
     """Class for applying a random transformation with label-specific probability."""
@@ -88,8 +92,8 @@ class GeneralImageAugmentations(AbstractTransformation):
         Returns:
             torch.Tensor: Tensor after augmentation
         """
-        hue = self.config.pop('hue')
-        contrast = self.config.pop('contrast')
+        hue = self.config['augmentation_hue']
+        contrast = self.config['augmentation_contrast']
         
         transforms = v2.Compose([
             v2.ColorJitter(brightness=(0.7,1), hue=hue, contrast=contrast), #hockey .1,.1, football .4,.2
@@ -130,11 +134,11 @@ class AugmentedImageFolder(ImageFolder):
         return image, label
 
 class AugmentationFactory:
-    def __call__(self, config):
-        match config['type']:
+    def __call__(self, config) -> AbstractTransformation:
+        match config['augmentation_type']:
             case 'general':
                 return GeneralImageAugmentations(config)
             case _:
-                return None
+                return NoAugmentation()
         
         

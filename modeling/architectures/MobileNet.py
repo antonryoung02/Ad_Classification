@@ -1,0 +1,135 @@
+import torch
+from torch import nn, optim
+from torch.nn.modules.loss import _Loss
+from torch.optim import Optimizer
+from typing import Tuple, Optional
+from torch.optim.lr_scheduler import StepLR
+from modeling.ModelInitializer import BaseModelInitializer
+from torchvision.transforms import v2
+
+class MobileNetInitializer(BaseModelInitializer):
+    """
+    Initializer for MobileNet with hparams
+
+    Expected keys in config:
+        model (MobileNet):
+            model_width_multiplier: (0,1] scales in_channels and out_channels of all layers
+            model_resolution_multiplier: (0,1] resizes input image by (p*width, p*height)
+        optimizer (RMSProp):
+            optimizer_lr
+            optimizer_momentum
+            optimizer_weight_decay
+            optimizer_alpha
+        criterion (BCEWithLogitsLoss):
+            pos_weight: positive class weight
+    """
+    
+    expected_keys = {'optimizer_lr', 'optimizer_alpha', 
+                     'optimizer_momentum', 'optimizer_weight_decay', 
+                     'criterion_pos_weight', 'model_width_multiplier', 
+                     'model_resolution_multiplier'}
+    
+    def __init__(self, config:dict):
+        super().__init__(config, MobileNetInitializer.expected_keys)
+        
+    def initialize_model_crit_opt_sched(self, input_shape: Tuple[int]) -> Tuple[nn.Module, _Loss, Optimizer, StepLR | None]:
+        model = self.get_model(input_shape)
+        optimizer = self.get_optimizer(model)
+        scheduler = None
+        return model, self.get_criterion(), optimizer, scheduler
+
+    def get_model(self, input_shape:tuple) -> nn.Module:
+        return MobileNet(self.config, input_shape)
+    
+    def get_optimizer(self, model:nn.Module) -> Optimizer:
+        lr = self.config['optimizer_lr']
+        alpha = self.config['optimizer_alpha']
+        momentum = self.config['optimizer_momentum']
+        weight_decay = self.config['optimizer_weight_decay']
+        return optim.RMSprop(model.parameters(), lr=lr, alpha=alpha, momentum=momentum, weight_decay=weight_decay)
+    
+    def get_criterion(self) -> _Loss:
+        weight = [self.config['criterion_pos_weight']]
+        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
+        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+
+        
+class MobileNet(nn.Module):
+    def __init__(self, config:dict, input_shape:tuple):
+        super().__init__()
+        
+        a = config['model_width_multiplier']
+        p = config['model_resolution_multiplier']
+        
+        self.scale_by_resolution = v2.Resize((int(p*input_shape[1]), int(p*input_shape[2])))
+        
+        self.standard_conv = nn.Conv2d(in_channels=3, out_channels=int(32 * a), kernel_size=3)
+        self.dws_conv1 = DepthwiseSeparableConvolution(in_channels=int(32*a), out_channels=int(64*a), depthwise_stride=1)
+        self.dws_conv2 = DepthwiseSeparableConvolution(in_channels=int(64*a), out_channels=int(128*a), depthwise_stride=2)
+        self.dws_conv3 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=int(128*a), depthwise_stride=1)
+        self.dws_conv4 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=(256*a), depthwise_stride=2)
+        self.dws_conv5 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=(256*a), depthwise_stride=1)
+        self.dws_conv6 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=(512*a), depthwise_stride=2)
+        
+        self.dws_conv7_11 = nn.Sequential(
+            *[DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=int(512*a), depthwise_stride=1) for _ in range(5)]
+        ) 
+        
+        self.dws_conv12 = DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=(1024*a), depthwise_stride=2)
+        self.dws_conv13 = DepthwiseSeparableConvolution(in_channels=int(1024*a), out_channels=(1024*a), depthwise_stride=2)
+        self.dws_conv14 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=(256*a), depthwise_stride=2)
+        self.avgpool = nn.AvgPool2d(kernel_size=7)
+        self.fc = nn.Linear(in_features=int(1024*a), out_features=1)
+        self.softmax = nn.Sigmoid()
+
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
+        x = self.scale_by_resolution(x)
+        x = self.standard_conv(x)
+        x = self.dws_conv1(x)
+        x = self.dws_conv2(x)
+        x = self.dws_conv3(x)
+        x = self.dws_conv4(x)
+        x = self.dws_conv5(x)
+        x = self.dws_conv6(x)
+        x = self.dws_conv7_11(x)
+        x = self.dws_conv12(x)
+        x = self.dws_conv13(x)
+        x = self.dws_conv14(x)
+        x = self.avgpool(x)
+        x = self.fc(x)
+        x = self.softmax(x)
+        return x
+    
+class DepthwiseSeparableConvolution(nn.Module):
+    def __init__(self, in_channels:int, out_channels:int, depthwise_stride:int):
+        """Creates a depthwise separable convolution as used in the MobileNet architectures.
+
+        Args:
+            in_channels (int): number of input channels (adjusted for width multiplier a)
+            out_channels (int): number of output channels (adjusted for width multiplier a)
+            depthwise_stride (int): stride for the depthwise convolution (1 or 2)
+        """
+        super(DepthwiseSeparableConvolution, self).__init__()
+        self.module = nn.Sequential(
+            nn.Conv2d(
+                in_channels=in_channels, 
+                out_channels=in_channels, 
+                kernel_size=3, 
+                stride=depthwise_stride, 
+                groups=in_channels
+                ),
+            nn.BatchNorm2d(num_features=in_channels),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                stride=1,
+                kernel_size=1
+                ),
+            nn.BatchNorm2d(num_features=out_channels),
+            nn.ReLU()
+        )
+        
+        
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
+        return self.module(x)

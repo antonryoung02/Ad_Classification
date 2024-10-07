@@ -14,7 +14,7 @@ from data_processing.metadata_dataframe import MetadataDataframe
 
 # Run as a script python image_editor.py <'absolute_path_to_data_directory'>
 class ImageEditor:
-    def __init__(self, data_path, metadata_dataframe):
+    def __init__(self, data_path:str, metadata_dataframe:MetadataDataframe):
         self.data_path = data_path
         self.metadata_dataframe = metadata_dataframe
         self.image_index = 0
@@ -71,9 +71,11 @@ class ImageEditor:
             self.image_label.image = None
 
     def show_image(self):
+        if not self.display_image:
+            return
         img = self.display_image.resize(
             (int(self.display_image.width * self.zoom_factor),
-             int(self.display_image.height * self.zoom_factor)),
+            int(self.display_image.height * self.zoom_factor)),
             Image.Resampling.LANCZOS
         )
         img = ImageTk.PhotoImage(img)
@@ -117,6 +119,8 @@ class ImageEditor:
         self.show_image()
 
     def apply_blur(self, event):
+        if not self.current_image:
+            return
         x = int(event.x / self.image_label.winfo_width() * self.current_image.width)
         y = int(event.y / self.image_label.winfo_height() * self.current_image.height)
 

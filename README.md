@@ -1,12 +1,11 @@
 # Ad_Classification
 
-Hockey vs Advertisement Classifier!
+Sports vs Advertisement Classifier!
 
-This repository contains the code used to collect data, preprocess data, train a PyTorch model, and make predictions on new images. Advertisements are distracting, and the objective of this project is to mute these advertisements when they come on and only unmute when the hockey game returns.
-
-*Note: Unfortunately, I have not included the model weights due to it being trained on copyrighted material.*
+This repository contains the code used to collect data, preprocess data, train a PyTorch model, and make predictions on new images. Advertisements are distracting, and the objective of this project is to mute these advertisements when they are on and only unmute when the sports game returns.
 
 ## Demos
+
 [See report here](https://api.wandb.ai/links/antonryoung02_org/g0l4czrq)
 
 ## Motivation
@@ -21,7 +20,7 @@ The classifier has been set up to be executable on an [Apple Mac](./mac_inferenc
 
 Identified remaining issues:
 
-Gather synthetic data 
+Gather synthetic data
 
 ### July-August 2024
 
@@ -33,7 +32,7 @@ Model inference on coreML for Mac M1 is < 1ms
 
 ### June 2024
 
-I switched to pytorch lightning for a more organized training procedure and better compatability with Weights & Biases. 
+I switched from pytorch to pytorch lightning for a more organized training procedure and better compatability with Weights & Biases.
 
 I moved the data augmentation to occur after the train/val split to avoid data leakage, and I implemented a SqueezeNet architecture which led to better performance with fewer parameters.
 

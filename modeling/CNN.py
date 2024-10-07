@@ -2,7 +2,7 @@ import torch
 import pytorch_lightning as pl
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryAUROC
 from modeling.ModelInitializer import ModelInitializerFactory
-from typing import Tuple, Union, Dict
+from typing import Tuple, Union
 from torch.optim import Optimizer
 
 class CNN(pl.LightningModule):
@@ -56,7 +56,7 @@ class CNN(pl.LightningModule):
         preds = torch.round(probs)
         return {"loss": loss, "preds": preds, "probs":probs, "labels": labels}
     
-    def predict_step(self, batch:torch.Tensor, batch_idx:int=0) -> torch.Tensor:
+    def predict_step(self, batch:torch.Tensor, batch_idx:int) -> torch.Tensor:
         self.eval()
         with torch.no_grad():
             logits = self.forward(batch)

@@ -59,8 +59,6 @@ class Openverse:
             data = json.load(file)
             client_id = data.get('client_id')
             client_secret = data.get('client_secret')
-            print(f"Client ID: {client_id}")
-            print(f"Client Secret: {client_secret}")
             data = {
                 "client_id":client_id,
                 "client_secret":client_secret,
