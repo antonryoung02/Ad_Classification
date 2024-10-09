@@ -12,8 +12,24 @@ class BaseModelInitializer:
         self._validate_config(config, expected_keys)
         self.config = config
         
-    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[StepLR]]:
-        raise NotImplementedError("All subclasses of BaseModelInitializer must override this method")
+    def initialize_model_crit_opt_sched(self, input_shape: Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, StepLR | None]:
+        criterion = self.get_criterion()
+        model = self.get_model(input_shape)
+        optimizer = self.get_optimizer(model)
+        scheduler = self.get_scheduler(optimizer)
+        return model, criterion, optimizer, scheduler
+    
+    def get_criterion(self) -> _Loss:
+        raise NotImplementedError()
+         
+    def get_optimizer(self, model:nn.Module) -> Optimizer:
+        raise NotImplementedError()
+    
+    def get_model(self, input_shape) -> nn.Module:
+        raise NotImplementedError()
+    
+    def get_scheduler(self, optimizer:Optimizer) -> Optional[StepLR]:
+        raise NotImplementedError()
     
     def get_device(self) -> torch.device:
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")

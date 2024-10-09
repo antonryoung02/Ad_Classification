@@ -31,15 +31,12 @@ class MobileNetInitializer(BaseModelInitializer):
     
     def __init__(self, config:dict):
         super().__init__(config, MobileNetInitializer.expected_keys)
-        
-    def initialize_model_crit_opt_sched(self, input_shape: Tuple[int]) -> Tuple[nn.Module, _Loss, Optimizer, StepLR | None]:
-        model = self.get_model(input_shape)
-        optimizer = self.get_optimizer(model)
-        scheduler = None
-        return model, self.get_criterion(), optimizer, scheduler
 
     def get_model(self, input_shape:tuple) -> nn.Module:
         return MobileNet(self.config, input_shape)
+    
+    def get_scheduler(self, optimizer:Optimizer) -> Optional[StepLR]:
+        return None
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         """
@@ -100,7 +97,6 @@ class MobileNet(nn.Module):
         self.dws_conv14 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=(256*a), depthwise_stride=2)
         self.avgpool = nn.AvgPool2d(kernel_size=7)
         self.fc = nn.Linear(in_features=int(1024*a), out_features=1)
-        self.softmax = nn.Sigmoid()
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         x = self.scale_by_resolution(x)
@@ -117,7 +113,6 @@ class MobileNet(nn.Module):
         x = self.dws_conv14(x)
         x = self.avgpool(x)
         x = self.fc(x)
-        x = self.softmax(x)
         return x
     
 class DepthwiseSeparableConvolution(nn.Module):

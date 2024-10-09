@@ -7,6 +7,7 @@ from typing import Tuple, Optional
 from torch.optim.lr_scheduler import StepLR
 from modeling.ModelInitializer import BaseModelInitializer
 import numpy as np
+from modeling.architectures.utils import he_initialization
 
 class SqueezeNetInitializer(BaseModelInitializer):
     """
@@ -39,22 +40,9 @@ class SqueezeNetInitializer(BaseModelInitializer):
     def __init__(self, config:dict):
         super().__init__(config, SqueezeNetInitializer.expected_keys)
 
-    def initialize_model_crit_opt_sched(self, input_shape:Tuple[int, int, int]) -> Tuple[nn.Module, _Loss, Optimizer, Optional[StepLR]]:
-        model = self.get_model(input_shape)
-        optimizer = self.get_optimizer(model)
-        scheduler = self.get_scheduler(optimizer)
-        return model, self.get_criterion(), optimizer, scheduler
-    
-    def _initialize_weights(self, module:nn.Module) -> None:
-        """He initialization"""
-        if isinstance(module, (nn.Conv2d, nn.Linear)):
-            nn.init.kaiming_uniform_(module.weight, nonlinearity='relu')
-            if module.bias is not None:
-                nn.init.constant_(module.bias, 0)
-
     def get_model(self, input_shape:Tuple[int, int, int]) -> nn.Module:
         model = SqueezeNetWithSkipConnections(self.config, input_shape)
-        model.apply(self._initialize_weights)
+        model.apply(he_initialization)
         return model
     
     def get_scheduler(self, optimizer:Optimizer) -> StepLR:
