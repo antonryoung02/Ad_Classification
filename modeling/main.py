@@ -22,7 +22,7 @@ from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, sa
 def main():
     wandb.login()
     # train_best_model(best_config_dict)
-    config = load_config("sweep_config/football_squeezenet.yaml")
+    config = load_config("sweep_config/shufflenet.yaml")
     sweep_id = wandb.sweep(config, project="Ad_Classification")
     wandb.agent(sweep_id, k_fold_cross_validation, count=2)
 

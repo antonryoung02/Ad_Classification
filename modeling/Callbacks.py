@@ -3,7 +3,7 @@ import pytorch_lightning as pl
 import torch
 from typing import Dict, Tuple
 from torch.optim import Optimizer
-from lightning.pytorch.loggers import WandbLogger
+from pytorch_lightning.loggers import WandbLogger
 
 class MetricsLogger(pl.Callback):
     """Logs metrics to module logger on every epoch and end of training.
@@ -71,7 +71,7 @@ class MetricsLogger(pl.Callback):
 
 class GradientNormLogger(pl.Callback):
     """Logs the l2 gradient norm of each layer in the network for debugging purposes"""
-    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int) -> None:
+    def on_before_optimizer_step(self, trainer:pl.Trainer, pl_module:pl.LightningModule, optimizer:Optimizer, optimizer_idx:int=0) -> None:
         grad_norms = {}
         for name, param in pl_module.named_parameters():
             if param.grad is not None:
@@ -85,7 +85,7 @@ class GradientNormLogger(pl.Callback):
         if isinstance(trainer.logger, WandbLogger):
             trainer.logger.experiment.log(grad_norms)
         else:
-            raise ValueError("trainer does not have a wandb logger attached!")
+            raise ValueError(f"trainer logger {type(trainer.logger)} is not a wandb logger!")
 
 class KWorstPredictionsLogger(pl.Callback):
     """Uses the wandb logger to log images of the fully trained model's 5 worst validation set losses"""

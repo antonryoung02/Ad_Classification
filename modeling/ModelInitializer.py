@@ -4,8 +4,6 @@ from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
 from typing import Tuple, Optional
 from torch.optim.lr_scheduler import StepLR
-from modeling.architectures.MobileNet import MobileNetInitializer
-from modeling.architectures.SqueezeNet import SqueezeNetInitializer
 
 class BaseModelInitializer:
     def __init__(self, config:dict, expected_keys:set):
@@ -38,24 +36,3 @@ class BaseModelInitializer:
         for key in expected_keys:
             if key not in config:
                 raise ValueError(f"required key {key} does not exist in config")
-
-class ModelInitializerFactory:
-    def __call__(self, config:dict) -> BaseModelInitializer:
-        """Returns a ModelInitializer depending on the value of config['model_initializer']
-
-        Args:
-            config (dict): Must contain 'model_initializer' key. Supported values: 'squeezenet', 'mobilenet'
-
-        Returns:
-            BaseModelInitializer: Allows CNN class to initialize different architectures
-        """
-        if 'model_initializer' not in config.keys():
-            raise KeyError('model_initializer not found in config')
-        
-        match config['model_initializer']:
-            case "squeezenet":
-                return SqueezeNetInitializer(config)
-            case "mobilenet":
-                return MobileNetInitializer(config)
-            case _:
-                raise ValueError(f"model type {config['model_initializer']} does not exist!")

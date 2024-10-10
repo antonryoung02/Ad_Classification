@@ -5,37 +5,23 @@ metric:
   goal: "maximize"
 parameters:
   model_initializer:
-    values: ["squeezenet"]
-  model_base_e:
-    values: [96, 128, 160]
-  model_incr_e:
-    values: [128, 160]
-  model_sr:
-    values: [0.1925, 0.25, 0.325]
-  model_pct_3x3:
-    values: [0.4, 0.5, 0.6]
-  model_dropout:
-    distribution: "uniform"
-    min: 0
-    max: 0.5
-  scheduler_gamma:
-    distribution: "uniform"
-    min: 0.1
-    max: 1
-  scheduler_step_size:
-    values: [5]
+    values: ["mobilenet"]
+  model_width_multiplier:
+    values: [1]
+  model_resolution_multiplier:
+    values: [1]
   criterion_pos_weight:
     values: [0.7]
   optimizer_lr:
     distribution: "log_uniform_values"
-    min: 0.001
-    max: 0.05
-  optimizer_weight_decay:
-    distribution: "log_uniform_values"
     min: 0.0001
     max: 0.1
+  optimizer_weight_decay:
+    values: [0, 1e-5]
   optimizer_momentum:
     values: [0.9]
+  optimizer_alpha:
+    values: [0.99]
   num_fold:
     values: [4]
   batch_size:

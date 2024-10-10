@@ -84,18 +84,17 @@ class MobileNet(nn.Module):
         self.dws_conv1 = DepthwiseSeparableConvolution(in_channels=int(32*a), out_channels=int(64*a), depthwise_stride=1)
         self.dws_conv2 = DepthwiseSeparableConvolution(in_channels=int(64*a), out_channels=int(128*a), depthwise_stride=2)
         self.dws_conv3 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=int(128*a), depthwise_stride=1)
-        self.dws_conv4 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=(256*a), depthwise_stride=2)
-        self.dws_conv5 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=(256*a), depthwise_stride=1)
-        self.dws_conv6 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=(512*a), depthwise_stride=2)
+        self.dws_conv4 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=int(256*a), depthwise_stride=2)
+        self.dws_conv5 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=int(256*a), depthwise_stride=1)
+        self.dws_conv6 = DepthwiseSeparableConvolution(in_channels=int(256*a), out_channels=int(512*a), depthwise_stride=2)
         
         self.dws_conv7_11 = nn.Sequential(
             *[DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=int(512*a), depthwise_stride=1) for _ in range(5)]
         ) 
         
-        self.dws_conv12 = DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=(1024*a), depthwise_stride=2)
-        self.dws_conv13 = DepthwiseSeparableConvolution(in_channels=int(1024*a), out_channels=(1024*a), depthwise_stride=2)
-        self.dws_conv14 = DepthwiseSeparableConvolution(in_channels=int(128*a), out_channels=(256*a), depthwise_stride=2)
-        self.avgpool = nn.AvgPool2d(kernel_size=7)
+        self.dws_conv12 = DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=int(1024*a), depthwise_stride=2)
+        self.dws_conv13 = DepthwiseSeparableConvolution(in_channels=int(1024*a), out_channels=int(1024*a), depthwise_stride=2)
+        self.avgpool = nn.AvgPool2d(kernel_size=7, ceil_mode=True)
         self.fc = nn.Linear(in_features=int(1024*a), out_features=1)
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
@@ -110,8 +109,8 @@ class MobileNet(nn.Module):
         x = self.dws_conv7_11(x)
         x = self.dws_conv12(x)
         x = self.dws_conv13(x)
-        x = self.dws_conv14(x)
         x = self.avgpool(x)
+        x = torch.flatten(x, start_dim=1)
         x = self.fc(x)
         return x
     

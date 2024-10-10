@@ -12,7 +12,7 @@ def write_config_to_yaml(name:str, config:dict) -> None:
         config (dict): The wandb.config dictionary
     """
     current_date = datetime.now().strftime('%Y-%m-%d')
-    file_path = f'./modeling/configs/{current_date}_{name}.yaml'
+    file_path = f'configs/{current_date}_{name}.yaml'
     with open(file_path, 'w') as yaml_file:
         yaml.dump(dict(config), yaml_file, default_flow_style=False)
         

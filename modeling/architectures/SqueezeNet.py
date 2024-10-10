@@ -60,10 +60,11 @@ class SqueezeNetInitializer(BaseModelInitializer):
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         #Adam would not converge. But haven't tried with batch norm in the fire module
         lr = self.config['optimizer_lr']
-        momentum = self.config['optimizer_momentum', 0.9]
+        momentum = self.config['optimizer_momentum']
         weight_decay = self.config['optimizer_weight_decay']
         return optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-
+    
+    
 class SqueezeNetWithSkipConnections(nn.Module):
     """Squeezenet architecture with simple residual connections between fire modules"""
     def __init__(self, config:dict, input_shape:Tuple[int, int, int]):

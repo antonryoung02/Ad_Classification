@@ -46,7 +46,7 @@ class ShuffleNetInitializer(BaseModelInitializer):
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         lr = self.config['optimizer_lr']
-        momentum = self.config['optimizer_momentum', 0.9]
+        momentum = self.config['optimizer_momentum']
         weight_decay = self.config['optimizer_weight_decay']
         return torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
         
@@ -70,7 +70,7 @@ class ShuffleNet(Module):
         
         c = ShuffleNet.channels_for_group[g]
         
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=int(24*s), kernel_size=3, stride=2, groups=g)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=int(24*s), kernel_size=3, stride=2)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2)
         self.stage2 = nn.Sequential(
             ShuffleUnit(in_channels=int(24*s), out_channels=int(c*s), stride=2, groups=g),
@@ -84,6 +84,7 @@ class ShuffleNet(Module):
             ShuffleUnit(in_channels=int(2*c*s), out_channels=int(4*c*s), stride=2, groups=g),
             *[ShuffleUnit(in_channels=int(4*c*s), out_channels=int(4*c*s), stride=1, groups=g) for _ in range(3)]
         )
+        self.global_pool = nn.AdaptiveAvgPool2d(output_size=1) 
         self.fc = nn.Linear(in_features=int(4*c*s), out_features=1)
         
     def forward(self, x:torch.Tensor):
@@ -92,6 +93,8 @@ class ShuffleNet(Module):
         x = self.stage2(x)
         x = self.stage3(x)
         x = self.stage4(x)
+        x = self.global_pool(x)
+        x = torch.flatten(x, start_dim=1)
         x = self.fc(x)
         return x
         
@@ -108,7 +111,7 @@ class ShuffleUnit(Module):
 
         self.residual_avgpool = nn.AvgPool2d(kernel_size=3, stride=2, padding=1)
         
-        self.group_pointwise_conv1 = nn.Conv2d(in_channels=in_channels, out_channels=bottleneck_channels, kernel_size=1, groups=groups)
+        self.group_pointwise_conv1 = nn.Conv2d(in_channels=in_channels, out_channels=bottleneck_channels, kernel_size=1, padding=1, groups=groups)
         self.batchnorm1 = nn.BatchNorm2d(num_features=bottleneck_channels)
         self.relu1 = nn.ReLU()
         

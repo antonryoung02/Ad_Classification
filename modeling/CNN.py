@@ -1,7 +1,7 @@
 import torch
 import pytorch_lightning as pl
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryAUROC
-from modeling.ModelInitializer import ModelInitializerFactory
+from modeling.ModelInitializerFactory import ModelInitializerFactory
 from typing import Tuple, Union
 from torch.optim import Optimizer
 
