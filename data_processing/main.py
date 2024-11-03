@@ -3,10 +3,6 @@ import os
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
-import dotenv
-dotenv_path = os.path.join(root_dir, '.env')
-dotenv.load_dotenv(dotenv_path)
-
 from data_processing.preprocessing import clear_directory, preprocess_data
 from data_processing.openverse import Openverse, OpenverseQuery
 from data_processing.metadata_dataframe import MetadataDataframe

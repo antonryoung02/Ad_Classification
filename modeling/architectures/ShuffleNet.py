@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.nn.modules import Module
 from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import LinearLR 
 from modeling.ModelInitializer import BaseModelInitializer
 from modeling.architectures.utils import he_initialization
 
@@ -16,27 +16,29 @@ class ShuffleNetInitializer(BaseModelInitializer):
             model_groups: (1,2,3,4,5) only. The number of groups in the pointwise group convolutions. Inversly proportional to model complexity
             model_scale_factor: Scales all channels by this factor. Channels need to remain being divisible by model_groups
         optimizer (SGD):
-            optimizer_lr: (0.5-0.1->0 with linear scheduler in paper) "divide it by 10 for 3 times..."
+            optimizer_lr: (0.5-0.1->0 with linear scheduler in paper)
             optimizer_momentum: (0.9 in paper)
             optimizer_weight_decay: Should be near zero (4e-5 in paper)
-        scheduler (StepLR):
-            gamma
-            step_size
+        scheduler (LinearLR):
+            scheduler_start_factor
+            scheduler_end_factor
         criterion (BCEWithLogitsLoss):
-            pos_weight: positive class weight
+            criterion_pos_weight: positive class weight
     """
     expected_keys = {
         'model_groups', 'model_scale_factor', 'criterion_pos_weight', 
-        'scheduler_gamma', 'scheduler_step_size', 'optimizer_lr',
-        'optimizer_momentum', 'optimizer_weight_decay'
+        'scheduler_start_factor', 'scheduler_end_factor', 'optimizer_lr',
+        'optimizer_momentum', 'optimizer_weight_decay', 'num_epochs'
         }
     def __init__(self, config:dict):
         super().__init__(config, ShuffleNetInitializer.expected_keys)
         
-    def get_scheduler(self, optimizer:Optimizer) -> StepLR:
-        gamma = self.config['scheduler_gamma']
-        step_size = self.config['scheduler_step_size']
-        scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
+    def get_scheduler(self, optimizer:Optimizer) -> LinearLR:
+        """Paper decays LR linearly to zero over training"""
+        start_factor = self.config['scheduler_start_factor']
+        end_factor = self.config['scheduler_end_factor']
+        total_iters = self.config['num_epochs'] + 1 # avoids last epoch lr=0
+        scheduler = LinearLR(optimizer, start_factor=start_factor, end_factor=end_factor, total_iters=total_iters)
         return scheduler
     
     def get_model(self, input_shape: Tuple[int, int, int]) -> Module:
@@ -58,7 +60,6 @@ class ShuffleNetInitializer(BaseModelInitializer):
         
         
 class ShuffleNet(Module):
-    """ShuffleNet architecture https://arxiv.org/pdf/1707.01083"""
     channels_for_group = {
         1: 144, 2:200, 3:240, 4:272, 5:384
     }

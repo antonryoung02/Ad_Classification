@@ -138,3 +138,13 @@ class KWorstPredictionsLogger(pl.Callback):
             })
         else:
             raise ValueError("trainer does not have a wandb logger attached!")
+
+            
+class CurriculumLearningCallback(pl.Callback):
+    def __init__(self, augmentation):
+        self.augmentation = augmentation
+
+    def on_train_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+        self.augmentation.hue = min(0.2, self.augmentation.hue + 0.01)
+        self.augmentation.contrast = min(0.1, self.augmentation.contrast + 0.01)
+            

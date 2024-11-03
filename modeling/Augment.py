@@ -82,6 +82,8 @@ class GeneralImageAugmentations(AbstractTransformation):
     """
     def __init__(self, config):
         self.config = config
+        self.hue = self.config['augmentation_hue']
+        self.contrast = self.config['augmentation_contrast']
         
     def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
         """Method that defines the augmentation steps
@@ -92,15 +94,13 @@ class GeneralImageAugmentations(AbstractTransformation):
         Returns:
             torch.Tensor: Tensor after augmentation
         """
-        hue = self.config['augmentation_hue']
-        contrast = self.config['augmentation_contrast']
         
         transforms = v2.Compose([
-            v2.ColorJitter(brightness=(0.7,1), hue=hue, contrast=contrast), #hockey .1,.1, football .4,.2
-            v2.RandomGrayscale(),
-            v2.RandomAdjustSharpness(sharpness_factor=2*random.random()),
+            v2.ColorJitter(brightness=(0.7,1), hue=self.hue, contrast=self.contrast), #hockey .1,.1, football .4,.2
+            #v2.RandomGrayscale(),
+            #v2.RandomAdjustSharpness(sharpness_factor=2*random.random()),
             v2.RandomHorizontalFlip(),
-            v2.RandomResizedCrop((224,224), scale=(0.8, 1), antialias=True),
+            #v2.RandomResizedCrop((224,224), scale=(0.8, 1), antialias=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #Imagenet values
         ])
         return transforms(image)

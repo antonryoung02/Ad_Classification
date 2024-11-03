@@ -19,16 +19,16 @@ class SqueezeNetInitializer(BaseModelInitializer):
             model_pct_3x3: The proportion of 3x3 filters in the expand layer. Value should be around 0.5
             model_sr: The 'squeeze ratio', the ratio of squeeze filters to expand filters. Authors reccomend 0.125-0.75
             model_base_e: The number of expand filters in the first fire module
-            model_incr_e: The Number of expand filters added every 2 fire modules
+            model_incr_e: The number of expand filters added every 2 fire modules
         optimizer (SGD):
             optimizer_lr
             optimizer_momentum
             optimizer_weight_decay
         scheduler (StepLR):
-            gamma
-            step_size
+            scheduler_gamma
+            scheduler_step_size
         criterion (BCEWithLogitsLoss):
-            pos_weight: positive class weight
+            criterion_pos_weight: positive class weight
     """
     
     expected_keys = {'scheduler_gamma', 'scheduler_step_size',

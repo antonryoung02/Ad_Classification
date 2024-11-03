@@ -25,11 +25,11 @@ parameters:
   scheduler_step_size:
     values: [5]
   criterion_pos_weight:
-    values: [0.7]
+    values: [1]
   optimizer_lr:
     distribution: "log_uniform_values"
-    min: 0.001
-    max: 0.05
+    min: 0.01
+    max: 0.1
   optimizer_weight_decay:
     distribution: "log_uniform_values"
     min: 0.0001
@@ -45,6 +45,6 @@ parameters:
   augmentation_type:
     values: ["general"]
   augmentation_hue:
-    values: [0.3, 0.4, 0.5]
+    values: [0]
   augmentation_contrast:
-    values: [0.1, 0.2, 0.3]
+    values: [0]

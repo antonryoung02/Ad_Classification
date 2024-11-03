@@ -11,30 +11,30 @@ parameters:
   model_scale_factor:
     values: [1]
   criterion_pos_weight:
-    values: [0.7]
+    values: [1]
   optimizer_lr:
-    distribution: "log_uniform_values"
-    min: 0.001
-    max: 0.1
+    distribution: "uniform"
+    min: 0.1
+    max: 0.18
   optimizer_weight_decay:
     distribution: "log_uniform_values"
-    min: .00001
-    max: 0.001
+    min: 0.000001
+    max: 0.01
   optimizer_momentum:
     values: [0.9]
-  scheduler_gamma:
-    values: [1]
-  scheduler_step_size:
-    values: [5]
+  scheduler_start_factor:
+    values: [1.0]
+  scheduler_end_factor:
+    values: [0.0]
   num_fold:
     values: [4]
   batch_size:
     values: [256]
   num_epochs:
-    values: [20]
+    values: [40]
   augmentation_type:
     values: ["general"]
   augmentation_hue:
-    values: [0.3, 0.4, 0.5]
+    values: [0.1]
   augmentation_contrast:
-    values: [0.1, 0.2, 0.3]
+    values: [0.2, 0.3, 0.4]
