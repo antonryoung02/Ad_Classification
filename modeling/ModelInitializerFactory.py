@@ -3,6 +3,7 @@ from modeling.architectures.MobileNet import MobileNetInitializer
 from modeling.architectures.SqueezeNet import SqueezeNetInitializer
 from modeling.ModelInitializer import BaseModelInitializer
 from modeling.architectures.ShuffleNet import ShuffleNetInitializer
+from modeling.architectures.GhostNet import GhostNetInitializer
 
 class ModelInitializerFactory:
     def __call__(self, config:dict) -> BaseModelInitializer:
@@ -24,5 +25,7 @@ class ModelInitializerFactory:
                 return MobileNetInitializer(config)
             case "shufflenet":
                 return ShuffleNetInitializer(config)
+            case "ghostnet":
+                return GhostNetInitializer(config)
             case _:
                 raise ValueError(f"model type {config['model_initializer']} does not exist!")
