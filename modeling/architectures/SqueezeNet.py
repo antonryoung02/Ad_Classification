@@ -139,7 +139,7 @@ class SqueezeNetWithSkipConnections(nn.Module):
         x = self.avg_pool(x)
         return x.view(x.size(0), -1)  # output shape is (batch_size, 1)
     
-class FireModule(torch.nn.Module):
+class FireModule(nn.Module):
     def __init__(self, in_channels:int, num_squeeze_1x1:int, num_expand_1x1:int, num_expand_3x3:int):
         """
         Creates a Fire Module from the squeezenet paper with batch normalization and ReLU activations.
