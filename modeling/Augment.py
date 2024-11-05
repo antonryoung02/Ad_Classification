@@ -94,15 +94,21 @@ class GeneralImageAugmentations(AbstractTransformation):
         Returns:
             torch.Tensor: Tensor after augmentation
         """
-        
-        transforms = v2.Compose([
-            v2.ColorJitter(brightness=(0.7,1), hue=self.hue, contrast=self.contrast), #hockey .1,.1, football .4,.2
-            #v2.RandomGrayscale(),
-            #v2.RandomAdjustSharpness(sharpness_factor=2*random.random()),
-            v2.RandomHorizontalFlip(),
-            #v2.RandomResizedCrop((224,224), scale=(0.8, 1), antialias=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #Imagenet values
-        ])
+        t = []
+        if 'augmentation_hue' and 'augmentation_contrast' in self.config:
+            t.append(v2.ColorJitter(brightness=(0.7,1), hue=self.hue, contrast=self.contrast))
+        if 'augmentation_grayscale' in self.config:
+            t.append(v2.RandomGrayscale(p=self.config['augmentation_grayscale']))
+        if 'augmentation_sharpness' in self.config:
+            t.append(v2.RandomAdjustSharpness(sharpness_factor=self.config['augmentation_sharpness']*random.random()))
+        if 'augmentation_flip' in self.config:
+            t.append(v2.RandomHorizontalFlip(p=self.config['augmentation_flip']))
+        if 'augmentation_crop' in self.config:
+            t.append(v2.RandomResizedCrop((224,224), scale=(self.config['augmentation_crop'], 1), antialias=True))
+            
+        t.append(v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]))
+            
+        transforms = v2.Compose(t)
         return transforms(image)
     
 class AugmentedImageFolder(ImageFolder):

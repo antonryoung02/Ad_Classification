@@ -37,7 +37,6 @@ class GhostNetInitializer(BaseModelInitializer):
         model.apply(he_initialization)
         return model
         
-    
     def get_scheduler(self, optimizer:Optimizer) -> Optional[LinearLR]: #Probably borrow from mobilenetV3
         start_factor = self.config['scheduler_start_factor']
         end_factor = self.config['scheduler_end_factor']
@@ -71,33 +70,26 @@ class GhostNet(nn.Module):
         self.module = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=int(16 * p), kernel_size=3, stride=2),  #224
             
-            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(16 * p), out_channels=int(16 * p), stride=1, s=s, d=d),  #112
-            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(48 * p), out_channels=int(24 * p), stride=2, s=s, d=d),
+            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(16 * p), out_channels=int(16 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),  #112
+            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(48 * p), out_channels=int(24 * p), stride=2, s=s, d=d, se_module=True, se_ratio=r),
 
-            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(24 * p), stride=1, s=s, d=d),  #56
-            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(40 * p), stride=2, s=s, d=d),
-            SEModule(in_channels=int(40 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(24 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),  #56
+            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(40 * p), stride=2, s=s, d=d, se_module=True, se_ratio=r),
             
-            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(120 * p), out_channels=int(40 * p), stride=1, s=s, d=d),  #28
-            SEModule(in_channels=int(40 * p), bottleneck_ratio=r),
-            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(240 * p), out_channels=int(80 * p), stride=2, s=s, d=d),
+            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(120 * p), out_channels=int(40 * p), stride=1, s=s, d=d, se_module=True, se_ratio=r),  #28
+            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(240 * p), out_channels=int(80 * p), stride=2, s=s, d=d, se_module=False, se_ratio=r),
             
-            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(200 * p), out_channels=int(80 * p), stride=1, s=s, d=d),  #14
-            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(480 * p), out_channels=int(112 * p), stride=1, s=s, d=d),
-            SEModule(in_channels=int(112 * p), bottleneck_ratio=r),
-            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(112 * p), stride=1, s=s, d=d),
-            SEModule(in_channels=int(112 * p), bottleneck_ratio=r),
-            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(160 * p), stride=2, s=s, d=d),
-            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(200 * p), out_channels=int(80 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),  #14
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(480 * p), out_channels=int(112 * p), stride=1, s=s, d=d, se_module=True, se_ratio=r),
+            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(112 * p), stride=1, s=s, d=d, se_module=True, se_ratio=r),
+            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(160 * p), stride=2, s=s, d=d, se_module=True, se_ratio=r),
             
-            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),  #7
-            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
-            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
-            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
-            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),  #7
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d, se_module=True, se_ratio=r),
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d, se_module=True, se_ratio=r),
             
             nn.Conv2d(in_channels=int(160 * p), out_channels=int(960 * p), kernel_size=1),
             nn.AdaptiveAvgPool2d(output_size=1),
@@ -111,7 +103,7 @@ class GhostNet(nn.Module):
         
     
 class GhostBottleneck(nn.Module):
-    def __init__(self, in_channels:int, exp_channels:int, out_channels:int, stride:int, s:int, d:int):
+    def __init__(self, in_channels:int, exp_channels:int, out_channels:int, stride:int, s:int, d:int, se_module:bool, se_ratio:int):
         super().__init__()
         
         if in_channels == out_channels:
@@ -158,8 +150,11 @@ class GhostBottleneck(nn.Module):
                 nn.Conv2d(in_channels=exp_channels, out_channels=exp_channels, kernel_size=3, stride=stride, groups=exp_channels),
                 nn.BatchNorm2d(num_features=exp_channels)
             )
+        if se_module:
+            self.se = SEModule(in_channels=exp_channels, bottleneck_ratio=se_ratio)
+        else:
+            self.se = nn.Identity()
                                          
-
         self.ghost2 = GhostModule(in_channels=exp_channels, out_channels=out_channels, s=s, d=d)
         self.batchnorm2 = nn.BatchNorm2d(num_features=out_channels)
         
@@ -169,6 +164,7 @@ class GhostBottleneck(nn.Module):
         x = self.batchnorm1(x)
         x = self.relu1(x)
         x = self.dw_conv(x)
+        x = self.se(x)
         x = self.ghost2(x)
         x = self.batchnorm2(x)
         return x + x_shortcut
