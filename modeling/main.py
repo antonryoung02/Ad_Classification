@@ -22,7 +22,7 @@ from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, sa
 def main():
     wandb.login()
     # train_best_model('./configs/2024-10-31_logical-sweep-1.yaml')
-    config = load_config("sweep_config/shufflenet.yaml")
+    config = load_config("sweep_config/ghostnet.yaml")
     sweep_id = wandb.sweep(config, project="Ad_Classification")
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
 
@@ -30,12 +30,12 @@ def k_fold_cross_validation():
     with wandb.init() as run:
         config = wandb.config
         write_config_to_yaml(run.name, config)
+        run.tags = run.tags + (config['model_initializer'],)
         
         kf = KFold(n_splits=config['num_fold'], shuffle=True, random_state=123)
 
         val_transform = v2.Compose([v2.ToTensor(), v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         train_transform  = v2.Compose([v2.ToTensor()])
-        #train_transform = v2.Compose([v2.ToTensor(), v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
  
         train_augmentation = AugmentationFactory()(config)
         train_data_folder = AugmentedImageFolder(root="../FootballVA", transform=train_transform, augmentation=train_augmentation)

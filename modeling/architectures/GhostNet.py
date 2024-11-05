@@ -3,10 +3,10 @@ from torch import nn, optim
 from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
 from typing import Tuple, Optional
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import LinearLR
 from modeling.ModelInitializer import BaseModelInitializer
 from torchvision.transforms import v2
-from utils import SEModule
+from modeling.architectures.utils import SEModule, he_initialization
 
 class GhostNetInitializer(BaseModelInitializer): 
     """
@@ -33,10 +33,17 @@ class GhostNetInitializer(BaseModelInitializer):
         super().__init__(config, GhostNetInitializer.expected_keys)
 
     def get_model(self, input_shape:tuple) -> nn.Module:
-        return GhostNet(self.config, input_shape)
+        model = GhostNet(self.config, input_shape)
+        model.apply(he_initialization)
+        return model
+        
     
-    def get_scheduler(self, optimizer:Optimizer) -> Optional[StepLR]: #Probably borrow from mobilenetV3
-        return None
+    def get_scheduler(self, optimizer:Optimizer) -> Optional[LinearLR]: #Probably borrow from mobilenetV3
+        start_factor = self.config['scheduler_start_factor']
+        end_factor = self.config['scheduler_end_factor']
+        total_iters = self.config['num_epochs'] + 1 # avoids last epoch lr=0
+        scheduler = LinearLR(optimizer, start_factor=start_factor, end_factor=end_factor, total_iters=total_iters)
+        return scheduler
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         lr = self.config['optimizer_lr']
@@ -57,44 +64,46 @@ class GhostNet(nn.Module):
         self.input_shape = input_shape
         s = config['model_ghost_ratio']
         d = config['model_kernel_size']
-        p = config['model_width_multipler'] #Not implemented for now. 
+        p = config['model_width_multiplier'] #Not implemented for now. 
         r = config['model_se_ratio']
         
+        # 9.6 million. model_width reduces complexity by p**2, similar size at p=0.6???
         self.module = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=2), #224
-        
-            GhostBottleneck(in_channels=16, exp_channels=16, out_channels=16, stride=1, s=s, d=d), #112
-            GhostBottleneck(in_channels=16, exp_channels=48, out_channels=24, stride=2, s=s, d=d),
+            nn.Conv2d(in_channels=3, out_channels=int(16 * p), kernel_size=3, stride=2),  #224
+            
+            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(16 * p), out_channels=int(16 * p), stride=1, s=s, d=d),  #112
+            GhostBottleneck(in_channels=int(16 * p), exp_channels=int(48 * p), out_channels=int(24 * p), stride=2, s=s, d=d),
 
-            GhostBottleneck(in_channels=24, exp_channels=72, out_channels=24, stride=1, s=s, d=d), #56
-            GhostBottleneck(in_channels=24, exp_channels=72, out_channels=40, stride=2, s=s, d=d),
-            SEModule(in_channels=40, bottleneck_ratio=r),
-        
-            GhostBottleneck(in_channels=40, exp_channels=120, out_channels=40, stride=1, s=s, d=d), #28
-            SEModule(in_channels=40, bottleneck_ratio=r),
-            GhostBottleneck(in_channels=40, exp_channels=240, out_channels=80, stride=2, s=s, d=d),
-        
-            GhostBottleneck(in_channels=80, exp_channels=200, out_channels=80, stride=1, s=s, d=d), #14
-            GhostBottleneck(in_channels=80, exp_channels=184, out_channels=80, stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=80, exp_channels=184, out_channels=80, stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=80, exp_channels=480, out_channels=112, stride=1, s=s, d=d),
-            SEModule(in_channels=112, bottleneck_ratio=r),
-            GhostBottleneck(in_channels=112, exp_channels=672, out_channels=112, stride=1, s=s, d=d),
-            SEModule(in_channels=112, bottleneck_ratio=r),
-            GhostBottleneck(in_channels=112, exp_channels=672, out_channels=160, stride=2, s=s, d=d),
-            SEModule(in_channels=160, bottleneck_ratio=r),
-        
-            GhostBottleneck(in_channels=160, exp_channels=960, out_channels=160, stride=1, s=s, d=d), #7
-            GhostBottleneck(in_channels=160, exp_channels=960, out_channels=160, stride=1, s=s, d=d),
-            SEModule(in_channels=160, bottleneck_ratio=r),
-            GhostBottleneck(in_channels=160, exp_channels=960, out_channels=160, stride=1, s=s, d=d),
-            GhostBottleneck(in_channels=160, exp_channels=960, out_channels=160, stride=1, s=s, d=d),
-            SEModule(in_channels=160, bottleneck_ratio=r),
-        
-            nn.Conv2d(in_channels=160, out_channels=960, kernel_size=1),
+            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(24 * p), stride=1, s=s, d=d),  #56
+            GhostBottleneck(in_channels=int(24 * p), exp_channels=int(72 * p), out_channels=int(40 * p), stride=2, s=s, d=d),
+            SEModule(in_channels=int(40 * p), bottleneck_ratio=r),
+            
+            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(120 * p), out_channels=int(40 * p), stride=1, s=s, d=d),  #28
+            SEModule(in_channels=int(40 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(40 * p), exp_channels=int(240 * p), out_channels=int(80 * p), stride=2, s=s, d=d),
+            
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(200 * p), out_channels=int(80 * p), stride=1, s=s, d=d),  #14
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d),
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(184 * p), out_channels=int(80 * p), stride=1, s=s, d=d),
+            GhostBottleneck(in_channels=int(80 * p), exp_channels=int(480 * p), out_channels=int(112 * p), stride=1, s=s, d=d),
+            SEModule(in_channels=int(112 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(112 * p), stride=1, s=s, d=d),
+            SEModule(in_channels=int(112 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(112 * p), exp_channels=int(672 * p), out_channels=int(160 * p), stride=2, s=s, d=d),
+            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
+            
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),  #7
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
+            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
+            GhostBottleneck(in_channels=int(160 * p), exp_channels=int(960 * p), out_channels=int(160 * p), stride=1, s=s, d=d),
+            SEModule(in_channels=int(160 * p), bottleneck_ratio=r),
+            
+            nn.Conv2d(in_channels=int(160 * p), out_channels=int(960 * p), kernel_size=1),
             nn.AdaptiveAvgPool2d(output_size=1),
-            nn.Conv2d(in_channels=960, out_channels=1280, kernel_size=1), #1
-            nn.Linear(in_features=1280, out_features=1)
+            nn.Conv2d(in_channels=int(960 * p), out_channels=int(1280 * p), kernel_size=1),  #1
+            nn.Flatten(),
+            nn.Linear(in_features=int(1280 * p), out_features=1)
         )
         
     def forward(self, x:torch.Tensor) -> torch.Tensor:
@@ -108,14 +117,26 @@ class GhostBottleneck(nn.Module):
         if in_channels == out_channels:
             self.shortcut = nn.Identity()
         else:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(
+            if stride == 1:
+                dw_conv = nn.Conv2d(
                     in_channels=in_channels,
                     out_channels=in_channels,
                     kernel_size=3,
-                    stride=2,
+                    stride=stride,
+                    groups=in_channels,
+                    padding=1
+                    )
+            else:
+                dw_conv = nn.Conv2d(
+                    in_channels=in_channels,
+                    out_channels=in_channels,
+                    kernel_size=3,
+                    stride=stride,
                     groups=in_channels
-                    ),
+                    )
+                 
+            self.shortcut = nn.Sequential(
+                dw_conv,
                 nn.BatchNorm2d(num_features=in_channels),
                 nn.Conv2d(
                     in_channels=in_channels,
@@ -133,7 +154,11 @@ class GhostBottleneck(nn.Module):
         if stride == 1:
             self.dw_conv = nn.Identity()
         else:
-            self.dw_conv = nn.Conv2d(in_channels=exp_channels, out_channels=exp_channels, kernel_size=3, stride=stride, groups=exp_channels)
+            self.dw_conv = nn.Sequential(
+                nn.Conv2d(in_channels=exp_channels, out_channels=exp_channels, kernel_size=3, stride=stride, groups=exp_channels),
+                nn.BatchNorm2d(num_features=exp_channels)
+            )
+                                         
 
         self.ghost2 = GhostModule(in_channels=exp_channels, out_channels=out_channels, s=s, d=d)
         self.batchnorm2 = nn.BatchNorm2d(num_features=out_channels)

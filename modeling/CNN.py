@@ -6,14 +6,14 @@ from typing import Tuple, Union
 from torch.optim import Optimizer
 
 class CNN(pl.LightningModule):
+    input_shape = (3,224,224)
     """A Convolutional Neural Network learning class capable of initializing any configuration of Network, Criterion, Optimizer, and LR Scheduler"""
-    def __init__(self, config:dict, input_shape:Tuple[int, int, int]=(3, 224,224), fold_idx:int=0):
+    def __init__(self, config:dict, fold_idx:int=0):
         super().__init__()
         self.config = config
         self.fold_idx = fold_idx
-        self.input_shape = input_shape
         self.initializer = ModelInitializerFactory()(config)
-        self.network, self.criterion, self.optimizer, self.scheduler = self.initializer.initialize_model_crit_opt_sched(self.input_shape)
+        self.network, self.criterion, self.optimizer, self.scheduler = self.initializer.initialize_model_crit_opt_sched(CNN.input_shape)
         self.train_acc = BinaryAccuracy()
         self.valid_acc = BinaryAccuracy()
         self.valid_precision = BinaryPrecision()

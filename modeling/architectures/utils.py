@@ -25,6 +25,7 @@ class SEModule(nn.Module):
     
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         x_squeeze = self.squeeze(x)
+        x_squeeze = x_squeeze.view(x_squeeze.size(0), x_squeeze.size(1)) 
         # Linear layers reshape to (batch_size, features) and x is (batch_size, channels, h, w)
         x_excitation = self.excitation(x_squeeze).view(x.size(0), x.size(1), 1, 1)
         return x_excitation * x
