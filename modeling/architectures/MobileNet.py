@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import StepLR
 from modeling.ModelInitializer import BaseModelInitializer
 from torchvision.transforms import v2
 
+#TODO update to V3
 class MobileNetInitializer(BaseModelInitializer):
     """
     Initializer for MobileNet with hparams
@@ -21,7 +22,7 @@ class MobileNetInitializer(BaseModelInitializer):
             optimizer_weight_decay
             optimizer_alpha
         criterion (BCEWithLogitsLoss):
-            pos_weight: positive class weight
+            criterion_pos_weight: positive class weight
     """
     
     expected_keys = {'optimizer_lr', 'optimizer_alpha', 
