@@ -3,6 +3,7 @@ from torch import nn
 from datetime import datetime
 import yaml
 import coremltools as ct
+from typing import Any
 
 def write_config_to_yaml(name:str, config:dict) -> None:
     """Writes the wandb run's config dictionary to a yaml file
@@ -33,7 +34,6 @@ def save_as_coreml(model:nn.Module, filename:str):
     model.eval()
     example_input = torch.rand(1, 3, 224, 224) 
     traced_model = torch.jit.trace(model, example_input)
-    out = traced_model(example_input)
 
     scale = 1.0 / (255.0 * 0.226)
     red_bias = -0.485 / 0.226
@@ -46,9 +46,12 @@ def save_as_coreml(model:nn.Module, filename:str):
         convert_to="mlprogram",
         inputs=[input]
     )
-    current_date = datetime.now().strftime('%Y-%m-%d')
     core_model.save(f"{filename}.mlpackage")
         
 def save_as_pt(model:nn.Module, filename:str):
     state_dict = model.state_dict()
     torch.save(state_dict, f'{filename}.pt')
+
+def add_tag_to_run(run:Any, tag:str):
+    if run.tags:
+        run.tags = run.tags + (tag,)

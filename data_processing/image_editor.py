@@ -2,12 +2,8 @@ import sys
 import os
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
-import argparse
 
 import dotenv
-dotenv_path = os.path.join(root_dir, '.env')
-dotenv.load_dotenv(dotenv_path)
-
 from PIL import Image, ImageTk, ImageFilter
 import tkinter as tk
 from data_processing.metadata_dataframe import MetadataDataframe

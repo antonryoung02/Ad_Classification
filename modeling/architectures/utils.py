@@ -11,7 +11,8 @@ def he_initialization(module:nn.Module) -> None:
 class SEModule(nn.Module):
     """https://arxiv.org/pdf/1709.01507
 
-        bottleneck_ratio r is reccomended to be 16, but not necessarily constant across layers
+        bottleneck_ratio r is reccomended to be 16, but not necessarily constant across layers. Seems to 
+        also be smaller for smaller networks
     """
     def __init__(self, in_channels:int, bottleneck_ratio:int):
         super().__init__()

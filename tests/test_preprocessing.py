@@ -7,7 +7,8 @@ from data_processing.preprocessing import clear_directory
 from modeling.Augment import GeneralImageAugmentations, AbstractTransformation, AugmentedImageFolder
 from torchvision.transforms import v2
 from torchvision.transforms.functional import to_pil_image
-import matplotlib.pyplot as plt
+from modeling.Augment import AugmentationFactory
+from modeling.utils import load_config
 
 def simulate_data_augmentation_method(augmentation:AbstractTransformation, invert_normalization:bool=False):
     """Helps test quality of the transformations in test_output directory"""
@@ -68,11 +69,8 @@ def simulate_data_augmentation_method(augmentation:AbstractTransformation, inver
     
     
 def main():
-    config = {
-        'augmentation_hue':0.4,
-        'augmentation_contrast':0.2
-    }
-    dt = GeneralImageAugmentations(config)
+    config = load_config('modeling/configs/<NAME>')
+    dt = AugmentationFactory()(config)
     simulate_data_augmentation_method(dt, invert_normalization=True)
     #view_image_histograms()
     # view_image_intensity_profile()

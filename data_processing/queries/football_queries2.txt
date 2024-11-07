@@ -1,40 +1,32 @@
-football aerial
-football stadium
-football fans
-football close-up player
-football coin toss
-football team huddle
-football referee
-football entrance
-football band
-football cheerleaders
-football sideline
-football receiver
-football quarterback
-football defensive line
-football crowd
-football night
-football rain
-football goalpost
-football tailgate
-football marching
-football mascot
-football banners
-football fan reactions
-football strategy
-football captain
-football locker room
-football press
-football injured player
-football helmet off
-football celebration
-football snow
-football handshake
-football team bus
-football face paint
-football field goal
-football photographer
-football scoreboard
-football press photographers
-football coach
-football cheer squad
+Cardinals quarterback
+Falcons quarterback
+Ravens quarterback
+Bills quarterback
+Panthers quarterback
+Bears quarterback
+Bengals quarterback
+Browns quarterback
+Cowboys quarterback
+Broncos quarterback
+Lions quarterback
+Packers quarterback
+Texans quarterback
+Colts quarterback
+Jaguars quarterback
+Chiefs quarterback
+Raiders quarterback
+Chargers quarterback
+Rams quarterback
+Dolphins quarterback
+Vikings quarterback
+Patriots quarterback
+Saints quarterback
+Giants quarterback
+Jets quarterback
+Eagles quarterback
+Steelers quarterback
+49ers quarterback
+Seahawks quarterback
+Buccaneers quarterback
+Titans quarterback
+Commanders quarterback

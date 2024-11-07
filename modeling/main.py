@@ -15,22 +15,23 @@ import numpy as np
 from modeling.CNN import CNN
 from modeling.Callbacks import KWorstPredictionsLogger, MetricsLogger, GradientNormLogger, CurriculumLearningCallback
 from modeling.Augment import AugmentedImageFolder, AugmentationFactory
-from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, save_as_pt
+from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, save_as_pt, add_tag_to_run
 
-# TODO fix model/yaml saving/loading paths
+DATA_PATH = "../FootballVA"
+PROJECT = "Ad_Classification_Football"
 
 def main():
     wandb.login()
-    # train_best_model('./configs/2024-10-31_logical-sweep-1.yaml')
-    config = load_config("sweep_config/ghostnet.yaml")
-    sweep_id = wandb.sweep(config, project="Ad_Classification")
-    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
+    # config = load_config("sweep_config/ghostnet.yaml")
+    # sweep_id = wandb.sweep(config, project=PROJECT)
+    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
 
 def k_fold_cross_validation():
     with wandb.init() as run:
         config = wandb.config
         write_config_to_yaml(run.name, config)
-        run.tags = run.tags + (config['model_initializer'],)
+        add_tag_to_run(run, config['model_initializer'])
         
         kf = KFold(n_splits=config['num_fold'], shuffle=True, random_state=123)
 
@@ -38,8 +39,8 @@ def k_fold_cross_validation():
         train_transform  = v2.Compose([v2.ToTensor()])
  
         train_augmentation = AugmentationFactory()(config)
-        train_data_folder = AugmentedImageFolder(root="../FootballVA", transform=train_transform, augmentation=train_augmentation)
-        val_data_folder = AugmentedImageFolder(root="../FootballVA", transform=val_transform, augmentation=None) 
+        train_data_folder = AugmentedImageFolder(root=DATA_PATH, transform=train_transform, augmentation=train_augmentation)
+        val_data_folder = AugmentedImageFolder(root=DATA_PATH, transform=val_transform, augmentation=None) 
         indices = torch.randperm(len(train_data_folder)).tolist()
 
         metrics = {
@@ -53,8 +54,8 @@ def k_fold_cross_validation():
         for fold_idx, (train_idx, val_idx) in enumerate(kf.split(indices)):
             train_subset = Subset(train_data_folder, [indices[i] for i in train_idx])
             val_subset = Subset(val_data_folder, [indices[i] for i in val_idx])
-            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True, num_workers=32)
-            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False, num_workers=32)
+            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True, num_workers=30)
+            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False, num_workers=30)
 
             model = CNN(config, fold_idx=fold_idx)
             wandb_logger = WandbLogger(project=run.project)
@@ -88,6 +89,7 @@ def k_fold_cross_validation():
 
         avg_metrics = {key: np.mean(val) for key, val in metrics.items()}
         wandb.log(avg_metrics)
+        add_tag_to_run(run, "completed")
         wandb.finish()
 
 def train_best_model(filepath:str):
@@ -95,8 +97,8 @@ def train_best_model(filepath:str):
     train_transform  = v2.Compose([v2.ToTensor()])
     train_augmentation = AugmentationFactory()(config)
     
-    data_folder = AugmentedImageFolder(root="../FootballVA", transform=train_transform, augmentation=train_augmentation)
-    data_loader = DataLoader(data_folder, batch_size=config['batch_size'], shuffle=True, num_workers=29)
+    data_folder = AugmentedImageFolder(root=DATA_PATH, transform=train_transform, augmentation=train_augmentation)
+    data_loader = DataLoader(data_folder, batch_size=config['batch_size'], shuffle=True, num_workers=30)
                 
     model = CNN(config, fold_idx=0)
     wandb_logger = WandbLogger(project='Ad_Classification')
@@ -117,7 +119,6 @@ def train_best_model(filepath:str):
     trainer.fit(model, data_loader)
     save_as_pt(model.network, 'model')
     save_as_coreml(model.network, 'model')
-    
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,10 @@
+from typing import Optional
 import torch
-from torch import nn, optim
+from torch import nn
 from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
-from typing import Tuple, Optional
 from torch.optim.lr_scheduler import LinearLR
 from modeling.ModelInitializer import BaseModelInitializer
-from torchvision.transforms import v2
 from modeling.architectures.utils import SEModule, he_initialization
 
 class GhostNetInitializer(BaseModelInitializer): 
@@ -37,10 +36,10 @@ class GhostNetInitializer(BaseModelInitializer):
         model.apply(he_initialization)
         return model
         
-    def get_scheduler(self, optimizer:Optimizer) -> Optional[LinearLR]: #Probably borrow from mobilenetV3
+    def get_scheduler(self, optimizer:Optimizer) -> Optional[LinearLR]:
         start_factor = self.config['scheduler_start_factor']
         end_factor = self.config['scheduler_end_factor']
-        total_iters = self.config['num_epochs'] + 1 # avoids last epoch lr=0
+        total_iters = self.config['num_epochs'] + 1 # avoids last epoch having lr=0
         scheduler = LinearLR(optimizer, start_factor=start_factor, end_factor=end_factor, total_iters=total_iters)
         return scheduler
     
@@ -63,12 +62,14 @@ class GhostNet(nn.Module):
         self.input_shape = input_shape
         s = config['model_ghost_ratio']
         d = config['model_kernel_size']
-        p = config['model_width_multiplier'] #Not implemented for now. 
+        p = config['model_width_multiplier']
         r = config['model_se_ratio']
         
-        # 9.6 million. model_width reduces complexity by p**2, similar size at p=0.6???
+        # 9.6 million parameters at p = 1
         self.module = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=int(16 * p), kernel_size=3, stride=2),  #224
+            nn.BatchNorm2d(num_features=int(16 * p)),
+            nn.ReLU(),
             
             GhostBottleneck(in_channels=int(16 * p), exp_channels=int(16 * p), out_channels=int(16 * p), stride=1, s=s, d=d, se_module=False, se_ratio=r),  #112
             GhostBottleneck(in_channels=int(16 * p), exp_channels=int(48 * p), out_channels=int(24 * p), stride=2, s=s, d=d, se_module=True, se_ratio=r),
@@ -104,31 +105,32 @@ class GhostNet(nn.Module):
     
 class GhostBottleneck(nn.Module):
     def __init__(self, in_channels:int, exp_channels:int, out_channels:int, stride:int, s:int, d:int, se_module:bool, se_ratio:int):
+        """Implementation of a ghost bottleneck layer
+
+        Args:
+            in_channels (int): Channels entering the  layer
+            exp_channels (int): Channels created by the inverse bottleneck
+            out_channels (int): Channels exiting the layer
+            stride (int): If stride != 1, adds a downsampling depthwise conv to reduce spatial dimension
+            s (int): Sets ghost ratio for ghost modules
+            d (int): Sets ghost filter size for ghost modules
+            se_module (bool): If true, adds a squeeze-excite block in the bottleneck path
+            se_ratio (int): Sets the ratio of input:bottleneck nodes in the module as se_ratio:1
+        """
         super().__init__()
         
         if in_channels == out_channels:
             self.shortcut = nn.Identity()
         else:
-            if stride == 1:
-                dw_conv = nn.Conv2d(
+            self.shortcut = nn.Sequential( # Depthwise separable convolution without nonlinearities
+                nn.Conv2d(
                     in_channels=in_channels,
                     out_channels=in_channels,
                     kernel_size=3,
                     stride=stride,
                     groups=in_channels,
                     padding=1
-                    )
-            else:
-                dw_conv = nn.Conv2d(
-                    in_channels=in_channels,
-                    out_channels=in_channels,
-                    kernel_size=3,
-                    stride=stride,
-                    groups=in_channels
-                    )
-                 
-            self.shortcut = nn.Sequential(
-                dw_conv,
+                    ),
                 nn.BatchNorm2d(num_features=in_channels),
                 nn.Conv2d(
                     in_channels=in_channels,
@@ -139,47 +141,58 @@ class GhostBottleneck(nn.Module):
                 nn.BatchNorm2d(num_features=out_channels),                    
                 )
             
-        self.ghost1 = GhostModule(in_channels=in_channels, out_channels=exp_channels, s=s, d=d)
-        self.batchnorm1 = nn.BatchNorm2d(num_features=exp_channels)
-        self.relu1 = nn.ReLU()
+        self.ghost1 = GhostModule(in_channels=in_channels, out_channels=exp_channels, s=s, d=d, has_relu=True)
         
         if stride == 1:
-            self.dw_conv = nn.Identity()
-        else:
-            self.dw_conv = nn.Sequential(
-                nn.Conv2d(in_channels=exp_channels, out_channels=exp_channels, kernel_size=3, stride=stride, groups=exp_channels),
+            self.depthwise_conv = nn.Identity()
+        else: # If stride == 2, add depthwise conv to reduce spatial dimension
+            self.depthwise_conv = nn.Sequential(
+                nn.Conv2d(in_channels=exp_channels, out_channels=exp_channels, kernel_size=3, stride=stride, groups=exp_channels, padding=1),
                 nn.BatchNorm2d(num_features=exp_channels)
             )
-        if se_module:
+        if se_module: # Some bottleneck layers add se module between the ghost modules
             self.se = SEModule(in_channels=exp_channels, bottleneck_ratio=se_ratio)
         else:
             self.se = nn.Identity()
                                          
-        self.ghost2 = GhostModule(in_channels=exp_channels, out_channels=out_channels, s=s, d=d)
-        self.batchnorm2 = nn.BatchNorm2d(num_features=out_channels)
+        self.ghost2 = GhostModule(in_channels=exp_channels, out_channels=out_channels, s=s, d=d, has_relu=False)
         
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         x_shortcut = self.shortcut(x)
         x = self.ghost1(x)
-        x = self.batchnorm1(x)
-        x = self.relu1(x)
-        x = self.dw_conv(x)
+        x = self.depthwise_conv(x)
         x = self.se(x)
         x = self.ghost2(x)
-        x = self.batchnorm2(x)
         return x + x_shortcut
     
 class GhostModule(nn.Module):
-    def __init__(self, in_channels:int, out_channels:int, s:float, d:int):
+    def __init__(self, in_channels:int, out_channels:int, s:int, d:int, has_relu:bool):
+        """Implementation of a ghost module
+
+        Args:
+            in_channels (int): channels entering ghost module
+            out_channels (int): channels exiting ghost module
+            s (int): the ratio of primary channels:ghost channels is 1:s
+            d (int): kernel size of the ghost convolutions
+            has_relu (bool): 1st ghost module in bottleneck uses relu activations, 2nd module does not
+        """
         super().__init__()
         m = int(out_channels / s)
-        self.primary_conv = nn.Conv2d(in_channels=in_channels, out_channels=m, kernel_size=3, padding=1)
-        self.ghost_operation = nn.Conv2d(in_channels=m, out_channels=out_channels-m, kernel_size=d, padding=int((d-1)/2), groups=m)
+        self.primary_conv = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=m, kernel_size=3, padding=1),
+            nn.BatchNorm2d(num_features=m),
+            nn.ReLU() if has_relu else nn.Identity()
+        )
+        self.ghost_operation = nn.Sequential(
+            nn.Conv2d(in_channels=m, out_channels=out_channels-m, kernel_size=d, padding=int((d-1)/2), groups=m),
+            nn.BatchNorm2d(num_features=out_channels-m),
+            nn.ReLU() if has_relu else nn.Identity()
+        )
         
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         x = self.primary_conv(x)
         x_ghost = self.ghost_operation(x)
-        return torch.cat([x, x_ghost], dim=1)
+        return torch.cat([x, x_ghost], dim=1) # x is the identity ghost mapping
     
     
     

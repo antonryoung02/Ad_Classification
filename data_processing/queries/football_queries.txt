@@ -1,80 +1,32 @@
-Arizona Cardinals
-Atlanta Falcons
-Baltimore Ravens
-Buffalo Bills
-Carolina Panthers
-Chicago Bears
-Cincinnati Bengals
-Cleveland Browns
-Dallas Cowboys
-Denver Broncos
-Detroit Lions
-Green Bay Packers
-Houston Texans
-Indianapolis Colts
-Jacksonville Jaguars
-Kansas City Chiefs
-Las Vegas Raiders
-Los Angeles Chargers
-Los Angeles Rams
-Miami Dolphins
-Minnesota Vikings
-New England Patriots
-New Orleans Saints
-New York Giants
-New York Jets
-Philadelphia Eagles
-Pittsburgh Steelers
-San Francisco 49ers
-Seattle Seahawks
-Tampa Bay Buccaneers
-Tennessee Titans
-Washington Commanders
-football 
-football tackle
-football touchdown
-football fumble
-football interception
-football sack
-football end zone
-football halftime
-football crowd
-football sideline
-Arlington Renegades
-DC Defenders
-Houston Roughnecks
-Orlando Guardians
-San Antonio Brahmas
-Seattle Sea Dragons
-St. Louis Battlehawks
-Vegas Vipers
-Football Alabama Crimson Tide
-Football Auburn Tigers
-Football Clemson Tigers
-Football Florida Gators
-Football Florida State Seminoles
-Football Georgia Bulldogs
-Football LSU Tigers
-Football Miami Hurricanes
-Football Michigan Wolverines
-Football Notre Dame Fighting Irish
-Football Ohio State Buckeyes
-Football Oklahoma Sooners
-Football Oregon Ducks
-Football Penn State Nittany Lions
-Football Texas Longhorns
-Football USC Trojans
-Football Washington Huskies
-Football Wisconsin Badgers
-Football Tennessee Volunteers
-Football Texas A&M Aggies
-Football Virginia Tech Hokies
-Football Iowa Hawkeyes
-Football Michigan State Spartans
-Football Nebraska Cornhuskers
-Football Ole Miss Rebels
-Football Kentucky Wildcats
-Football Baylor Bears
-Football TCU Horned Frogs
-Football North Carolina Tar Heels
-Football Oklahoma State Cowboys
+Cardinals touchdown
+Falcons touchdown
+Ravens touchdown
+Bills touchdown
+Panthers touchdown
+Bears touchdown
+Bengals touchdown
+Browns touchdown
+Cowboys touchdown
+Broncos touchdown
+Lions touchdown
+Packers touchdown
+Texans touchdown
+Colts touchdown
+Jaguars touchdown
+Chiefs touchdown
+Raiders touchdown
+Chargers touchdown
+Rams touchdown
+Dolphins touchdown
+Vikings touchdown
+Patriots touchdown
+Saints touchdown
+Giants touchdown
+Jets touchdown
+Eagles touchdown
+Steelers touchdown
+49ers touchdown
+Seahawks touchdown
+Buccaneers touchdown
+Titans touchdown
+Commanders touchdown

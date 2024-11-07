@@ -2,7 +2,7 @@ import torch
 from torch import nn, optim
 from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
-from typing import Tuple, Optional
+from typing import Optional
 from torch.optim.lr_scheduler import StepLR
 from modeling.ModelInitializer import BaseModelInitializer
 from torchvision.transforms import v2

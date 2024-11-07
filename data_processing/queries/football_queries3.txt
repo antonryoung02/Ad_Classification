@@ -1,33 +1,32 @@
-nfl kickoff
-nfl crowd
-nfl fumble
-nfl goal line
-nfl touchdown
-nfl field goal
-nfl quarterback
-nfl wide receiver
-nfl cheerleaders
-nfl sideline
-nfl tackle
-nfl interception
-nfl coach
-nfl referee
-nfl running back
-nfl end zone
-nfl huddle
-nfl defensive line
-nfl stadium
-nfl player entrance
-nfl coin toss
-nfl diving catch
-nfl breaking tackle
-nfl one-handed catch
-nfl stiff arm
-nfl celebration dance
-nfl sack
-nfl punt return
-nfl play action
-nfl blitz
-nfl red zone
-nfl goal post
-nfl turf
+Alabama touchdown
+Clemson touchdown
+Ohio State touchdown
+Michigan touchdown
+Georgia touchdown
+LSU touchdown
+Notre Dame touchdown
+Oklahoma touchdown
+Texas touchdown
+Florida touchdown
+USC touchdown
+Penn State touchdown
+Oregon touchdown
+Auburn touchdown
+Wisconsin touchdown
+Miami touchdown
+Florida State touchdown
+Texas A&M touchdown
+Tennessee touchdown
+Washington touchdown
+Iowa touchdown
+Michigan State touchdown
+Nebraska touchdown
+Stanford touchdown
+Virginia Tech touchdown
+North Carolina touchdown
+Arkansas touchdown
+Baylor touchdown
+Ole Miss touchdown
+Mississippi State touchdown
+Kentucky touchdown
+Missouri touchdown

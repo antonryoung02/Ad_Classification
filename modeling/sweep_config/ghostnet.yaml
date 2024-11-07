@@ -9,23 +9,25 @@ parameters:
   model_kernel_size:
     values: [3, 5]
   model_width_multiplier:
-    values: [0.5, 0.75]
+    values: [0.5]
   model_ghost_ratio:
     values: [2]
   model_se_ratio:
-    values: [4, 12]
+    values: [4, 6, 12]
   criterion_pos_weight:
     values: [1]
   optimizer_lr:
-    values: [0.015]
+    distribution: "uniform"
+    min: 0.01
+    max: 0.1
   scheduler_start_factor:
     values: [1.0]
   scheduler_end_factor:
     values: [0.0]
   optimizer_weight_decay:
-    distribution: "log_uniform_values"
+    distribution: "uniform"
     min: 0.00001
-    max: 0.1
+    max: 0.01
   optimizer_momentum:
     values: [0.9]
   num_fold:
@@ -33,14 +35,18 @@ parameters:
   batch_size:
     values: [256]
   num_epochs:
-    values: [30]
+    values: [40]
   augmentation_type:
     values: ["general"]
   augmentation_hue:
-    values: [0.1, 0.2]
+    distribution: "uniform"
+    min: 0.0
+    max: 0.3
   augmentation_contrast:
-    values: [0.2, 0.3, 0.4]
+    distribution: "uniform"
+    min: 0.0
+    max: 0.3
   augmentation_flip:
     values: [0.5]
-  augmentation_crop:
-    values: [0.8]
+  augmentation_sharpness:
+    values: [2]
