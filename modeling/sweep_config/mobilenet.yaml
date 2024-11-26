@@ -34,3 +34,7 @@ parameters:
     values: [0.3, 0.4, 0.5]
   augmentation_contrast:
     values: [0.1, 0.2, 0.3]
+  augmentation_flip:
+    values: [0.5]
+  augmentation_sharpness:
+    values: [1, 2]

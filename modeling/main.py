@@ -22,10 +22,20 @@ PROJECT = "Ad_Classification_Football"
 
 def main():
     wandb.login()
-    train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
-    # config = load_config("sweep_config/ghostnet.yaml")
-    # sweep_id = wandb.sweep(config, project=PROJECT)
-    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    # train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
+    config = load_config("sweep_config/ghostnet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    config = load_config("sweep_config/shufflenet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    config = load_config("sweep_config/mobilenet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    config = load_config("sweep_config/squeezenet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+
 
 def k_fold_cross_validation():
     with wandb.init() as run:

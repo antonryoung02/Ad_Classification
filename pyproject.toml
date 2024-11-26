@@ -25,6 +25,7 @@ lightning = "^2.3.1"
 coremltools = "^7.2"
 python-dotenv = "^1.0.1"
 openai = "^1.42.0"
+requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.27.1"

@@ -1,0 +1,78 @@
+baseball pitcher view
+baseball pitching mound
+baseball windup
+baseball fastball
+baseball curveball
+baseball changeup
+baseball strike zone
+baseball catcher signals
+baseball pitching mechanics
+baseball bullpen
+baseball batter view
+baseball batting stance
+baseball swing
+baseball foul ball
+baseball catcher gear
+baseball catching practice
+baseball behind home plate
+baseball bases loaded
+baseball first base
+baseball second base
+baseball third base
+baseball base hit
+baseball pop fly
+baseball ground ball
+baseball line drive
+baseball double
+baseball triple
+baseball strikeout swing
+baseball called strike
+baseball pickoff attempt
+baseball infield fly
+baseball tag out
+baseball ball in motion
+baseball pitch release
+baseball ball trajectory
+baseball ball spin
+baseball overhand pitch
+baseball sidearm pitch
+baseball pitching camera
+baseball home plate view
+baseball from outfield
+baseball dugout view
+baseball umpire view
+baseball aerial view
+baseball on-deck circle
+baseball practice swing
+baseball pitch count
+baseball game start
+baseball game end
+baseball close play
+baseball mound dirt
+baseball field grass
+baseball stadium lights
+baseball dugout scene
+baseball crowd behind pitcher
+baseball bullpen activity
+baseball fast pitch
+baseball slow pitch
+baseball slider
+baseball sinker
+baseball knuckleball
+baseball pitcher under stadium lights
+baseball rainy pitching
+baseball sunny pitching
+baseball windy pitching
+baseball pitcher celebration
+baseball pitcher frustration
+baseball batter walking to plate
+baseball umpire behind catcher
+baseball game on TV
+baseball score bug broadcast
+baseball pitcher intro
+baseball defensive shift
+baseball scoreboard broadcast
+baseball closeup pitching motion
+baseball strike zone overlay
+baseball slow motion pitch
+baseball behind the mound

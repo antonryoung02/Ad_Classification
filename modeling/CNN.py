@@ -21,7 +21,7 @@ class CNN(pl.LightningModule):
         self.valid_f1 = BinaryF1Score()
         self.valid_auroc = BinaryAUROC()
 
-    def forward(self, x:torch.Tensor):
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
         return self.network(x)
     
     def configure_optimizers(self) -> Union[Optimizer, dict]:

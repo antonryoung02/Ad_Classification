@@ -85,15 +85,6 @@ class GeneralImageAugmentations(AbstractTransformation):
         self.hue = self.config['augmentation_hue']
         self.contrast = self.config['augmentation_contrast']
         
-    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
-        """Method that defines the augmentation steps
-
-        Args:
-            image (torch.Tensor): Tensor before augmentation
-
-        Returns:
-            torch.Tensor: Tensor after augmentation
-        """
         t = []
         if 'augmentation_hue' and 'augmentation_contrast' in self.config:
             t.append(v2.ColorJitter(brightness=(0.7,1), hue=self.hue, contrast=self.contrast))
@@ -105,11 +96,19 @@ class GeneralImageAugmentations(AbstractTransformation):
             t.append(v2.RandomHorizontalFlip(p=self.config['augmentation_flip']))
         if 'augmentation_crop' in self.config:
             t.append(v2.RandomResizedCrop((224,224), scale=(self.config['augmentation_crop'], 1), antialias=True))
-            
-        t.append(v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]))
-            
-        transforms = v2.Compose(t)
-        return transforms(image)
+        t.append(v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]))    
+        self.transforms = v2.Compose(t)
+        
+    def transform(self, image:torch.Tensor, label:int) -> torch.Tensor:
+        """Method that defines the augmentation steps
+
+        Args:
+            image (torch.Tensor): Tensor before augmentation
+
+        Returns:
+            torch.Tensor: Tensor after augmentation
+        """
+        return self.transforms(image)
     
 class AugmentedImageFolder(ImageFolder):
     """ Dataset that performs image augmentation when data is accessed. Inherits from torchvision.datasets.ImageFolder"""
