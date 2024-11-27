@@ -21,18 +21,18 @@ class GhostNetInitializer(BaseModelInitializer):
             optimizer_lr
             optimizer_momentum
             optimizer_weight_decay
-        criterion (BCEWithLogitsLoss):
-            criterion_pos_weight: positive class weight
+        criterion (CrossEntropyLoss):
+            criterion_class_weights
     """
     expected_keys = {"optimizer_lr", "optimizer_momentum", "optimizer_weight_decay", 
-                     "criterion_pos_weight", "model_ghost_ratio", "model_kernel_size", 
+                     "criterion_class_weights", "model_ghost_ratio", "model_kernel_size", 
                      "model_width_multiplier", "model_se_ratio"} 
      
     def __init__(self, config:dict):
         super().__init__(config, GhostNetInitializer.expected_keys)
 
     def get_model(self, input_shape:tuple) -> nn.Module:
-        model = GhostNet(self.config, input_shape)
+        model = GhostNet(self.config, input_shape, num_classes=5)
         model.apply(he_initialization)
         return model
         
@@ -50,13 +50,12 @@ class GhostNetInitializer(BaseModelInitializer):
         return torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
     
     def get_criterion(self) -> _Loss:
-        weight = [self.config['criterion_pos_weight']]
-        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
-        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        weight = torch.tensor(self.config['criterion_class_weights'], dtype=torch.float32)
+        return nn.CrossEntropyLoss(weight=weight)
     
     
 class GhostNet(nn.Module):
-    def __init__(self, config:dict, input_shape:tuple):
+    def __init__(self, config:dict, input_shape:tuple, num_classes:int):
         super().__init__()
         self.config = config
         self.input_shape = input_shape
@@ -96,7 +95,7 @@ class GhostNet(nn.Module):
             nn.AdaptiveAvgPool2d(output_size=1),
             nn.Conv2d(in_channels=int(960 * p), out_channels=int(1280 * p), kernel_size=1),  #1
             nn.Flatten(),
-            nn.Linear(in_features=int(1280 * p), out_features=1)
+            nn.Linear(in_features=int(1280 * p), out_features=num_classes)
         )
         
     def forward(self, x:torch.Tensor) -> torch.Tensor:

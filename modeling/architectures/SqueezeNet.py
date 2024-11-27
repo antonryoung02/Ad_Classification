@@ -27,12 +27,12 @@ class SqueezeNetInitializer(BaseModelInitializer):
         scheduler (StepLR):
             scheduler_gamma
             scheduler_step_size
-        criterion (BCEWithLogitsLoss):
-            criterion_pos_weight: positive class weight
+        criterion (CrossEntropyLoss):
+            criterion_class_weights 
     """
     
     expected_keys = {'scheduler_gamma', 'scheduler_step_size',
-                     'criterion_pos_weight', 'optimizer_lr',
+                     'criterion_class_weights', 'optimizer_lr',
                      'optimizer_momentum', 'optimizer_weight_decay', 
                      'model_dropout', 'model_incr_e', 'model_base_e',
                      'model_pct_3x3', 'model_sr'}
@@ -41,7 +41,7 @@ class SqueezeNetInitializer(BaseModelInitializer):
         super().__init__(config, SqueezeNetInitializer.expected_keys)
 
     def get_model(self, input_shape:Tuple[int, int, int]) -> nn.Module:
-        model = SqueezeNetWithSkipConnections(self.config, input_shape)
+        model = SqueezeNetWithSkipConnections(self.config, input_shape, num_classes=5)
         model.apply(he_initialization)
         return model
     
@@ -52,10 +52,8 @@ class SqueezeNetInitializer(BaseModelInitializer):
         return scheduler
 
     def get_criterion(self) -> _Loss:
-        # Squeezenet seems to be sensitive to class imbalances
-        weight = [self.config['criterion_pos_weight']]
-        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
-        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        weight = torch.tensor(self.config['criterion_class_weights'], dtype=torch.float32)
+        return nn.CrossEntropyLoss(weight=weight)
     
     def get_optimizer(self, model:nn.Module) -> Optimizer:
         #Adam would not converge. But haven't tried with batch norm in the fire module
@@ -67,7 +65,7 @@ class SqueezeNetInitializer(BaseModelInitializer):
     
 class SqueezeNetWithSkipConnections(nn.Module):
     """Squeezenet architecture with simple residual connections between fire modules"""
-    def __init__(self, config:dict, input_shape:Tuple[int, int, int]):
+    def __init__(self, config:dict, input_shape:Tuple[int, int, int], num_classes:int):
         """
         Initializes the model layers      
 
@@ -106,7 +104,7 @@ class SqueezeNetWithSkipConnections(nn.Module):
         self.fire8 = FireModule(ei5, squeeze_1x1, expand_1x1, expand_3x3)
         squeeze_1x1, expand_1x1, expand_3x3, ei7  = self._get_ei_for_layer(7)
         self.fire9 = FireModule(ei6, squeeze_1x1, expand_1x1, expand_3x3)
-        self.final_conv = nn.Conv2d(ei7, 1, kernel_size=1)
+        self.final_conv = nn.Conv2d(ei7, num_classes, kernel_size=1)
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
 
     def _get_ei_for_layer(self, i:int):
@@ -137,7 +135,7 @@ class SqueezeNetWithSkipConnections(nn.Module):
         x = self.dropout(res4 + x)
         x = self.final_conv(x)
         x = self.avg_pool(x)
-        return x.view(x.size(0), -1)  # output shape is (batch_size, 1)
+        return x.view(x.size(0), -1)  # output shape is (batch_size, num_classes)
     
 class FireModule(nn.Module):
     def __init__(self, in_channels:int, num_squeeze_1x1:int, num_expand_1x1:int, num_expand_3x3:int):

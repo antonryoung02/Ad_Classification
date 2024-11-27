@@ -24,8 +24,8 @@ parameters:
     max: 1
   scheduler_step_size:
     values: [5]
-  criterion_pos_weight:
-    values: [1]
+  criterion_class_weights:
+    values: [1,1,1,1,1]
   optimizer_lr:
     distribution: "log_uniform_values"
     min: 0.01

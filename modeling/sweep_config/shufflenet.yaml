@@ -10,8 +10,8 @@ parameters:
     values: [2]
   model_scale_factor:
     values: [1]
-  criterion_pos_weight:
-    values: [1]
+  criterion_class_weights:
+    values: [1,1,1,1,1]
   optimizer_lr:
     distribution: "uniform"
     min: 0.1

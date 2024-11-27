@@ -13,7 +13,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import EarlyStopping
 import numpy as np
 from modeling.CNN import CNN
-from modeling.Callbacks import KWorstPredictionsLogger, MetricsLogger, GradientNormLogger, CurriculumLearningCallback
+from modeling.Callbacks import KWorstPredictionsLogger, MulticlassMetricsLogger, BinaryMetricsLogger, GradientNormLogger, CurriculumLearningCallback
 from modeling.Augment import AugmentedImageFolder, AugmentationFactory
 from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, save_as_pt, add_tag_to_run
 
@@ -70,7 +70,7 @@ def k_fold_cross_validation():
             model = CNN(config, fold_idx=fold_idx)
             wandb_logger = WandbLogger(project=run.project)
             wandb_logger.watch(model, log="all")
-            metrics_logger = MetricsLogger()
+            metrics_logger = BinaryMetricsLogger()
 
             trainer = pl.Trainer(
                 deterministic=True,

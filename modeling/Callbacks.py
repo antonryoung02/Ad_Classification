@@ -1,11 +1,35 @@
 import wandb
 import pytorch_lightning as pl
 import torch
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Mapping, Any
 from torch.optim import Optimizer
 from pytorch_lightning.loggers import WandbLogger
 
-class MetricsLogger(pl.Callback):
+# TODO define and implement metrics in CNN. Implement Logger's inherited methods 
+class MulticlassMetricsLogger(pl.Callback):
+    def __init__(self):
+        super().__init__()
+        self.metrics = {}
+
+    def on_train_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: wandb.Any, batch_idx: int) -> None:
+        return super().on_train_batch_end(trainer, pl_module, outputs, batch, batch_idx)
+    
+    def on_validation_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        return super().on_validation_batch_end(trainer, pl_module, outputs, batch, batch_idx, dataloader_idx)
+    
+    def on_train_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+        return super().on_train_epoch_end(trainer, pl_module)
+    
+    def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+        return super().on_validation_epoch_end(trainer, pl_module)
+
+    def on_fit_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+        return super().on_fit_end(trainer, pl_module)
+    
+    def get_epoch_metrics(self) -> dict:
+        return self.metrics
+
+class BinaryMetricsLogger(pl.Callback):
     """Logs metrics to module logger on every epoch and end of training.
     Records Train Accuracy, Val Accuracy, Val Precision, Val Recall, Val F1 and Val AUROC
     """

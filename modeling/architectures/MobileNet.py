@@ -21,20 +21,20 @@ class MobileNetInitializer(BaseModelInitializer):
             optimizer_momentum
             optimizer_weight_decay
             optimizer_alpha
-        criterion (BCEWithLogitsLoss):
-            criterion_pos_weight: positive class weight
+        criterion (CrossEntropyLoss):
+            criterion_class_weights
     """
     
     expected_keys = {'optimizer_lr', 'optimizer_alpha', 
                      'optimizer_momentum', 'optimizer_weight_decay', 
-                     'criterion_pos_weight', 'model_width_multiplier', 
+                     'criterion_class_weights', 'model_width_multiplier', 
                      'model_resolution_multiplier'}
     
     def __init__(self, config:dict):
         super().__init__(config, MobileNetInitializer.expected_keys)
 
     def get_model(self, input_shape:tuple) -> nn.Module:
-        return MobileNet(self.config, input_shape)
+        return MobileNet(self.config, input_shape, num_classes=5)
     
     def get_scheduler(self, optimizer:Optimizer) -> Optional[StepLR]:
         return None
@@ -67,18 +67,17 @@ class MobileNetInitializer(BaseModelInitializer):
         )
     
     def get_criterion(self) -> _Loss:
-        weight = [self.config['criterion_pos_weight']]
-        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
-        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        weight = torch.tensor(self.config['criterion_class_weights'], dtype=torch.float32)
+        return nn.CrossEntropyLoss(weight=weight)
 
         
 class MobileNet(nn.Module):
-    def __init__(self, config:dict, input_shape:tuple):
+    def __init__(self, config:dict, input_shape:tuple, num_classes:int):
         super().__init__()
-        
+
         a = config['model_width_multiplier']
         p = config['model_resolution_multiplier']
-        
+    
         self.scale_by_resolution = v2.Resize((int(p*input_shape[1]), int(p*input_shape[2])))
         
         self.standard_conv = nn.Conv2d(in_channels=3, out_channels=int(32 * a), kernel_size=3)
@@ -96,7 +95,7 @@ class MobileNet(nn.Module):
         self.dws_conv12 = DepthwiseSeparableConvolution(in_channels=int(512*a), out_channels=int(1024*a), depthwise_stride=2)
         self.dws_conv13 = DepthwiseSeparableConvolution(in_channels=int(1024*a), out_channels=int(1024*a), depthwise_stride=2)
         self.avgpool = nn.AvgPool2d(kernel_size=7, ceil_mode=True)
-        self.fc = nn.Linear(in_features=int(1024*a), out_features=1)
+        self.fc = nn.Linear(in_features=int(1024*a), out_features=num_classes)
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         x = self.scale_by_resolution(x)

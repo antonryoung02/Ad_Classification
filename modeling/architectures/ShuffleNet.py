@@ -22,11 +22,11 @@ class ShuffleNetInitializer(BaseModelInitializer):
         scheduler (LinearLR):
             scheduler_start_factor
             scheduler_end_factor
-        criterion (BCEWithLogitsLoss):
-            criterion_pos_weight: positive class weight
+        criterion (CrossEntropyLoss):
+            criterion_class_weights
     """
     expected_keys = {
-        'model_groups', 'model_scale_factor', 'criterion_pos_weight', 
+        'model_groups', 'model_scale_factor', 'criterion_class_weights', 
         'scheduler_start_factor', 'scheduler_end_factor', 'optimizer_lr',
         'optimizer_momentum', 'optimizer_weight_decay', 'num_epochs'
         }
@@ -42,7 +42,7 @@ class ShuffleNetInitializer(BaseModelInitializer):
         return scheduler
     
     def get_model(self, input_shape: Tuple[int, int, int]) -> Module:
-        model = ShuffleNet(self.config, input_shape)
+        model = ShuffleNet(self.config, input_shape, num_classes=5)
         model.apply(he_initialization)
         return model
     
@@ -53,18 +53,15 @@ class ShuffleNetInitializer(BaseModelInitializer):
         return torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
         
     def get_criterion(self) -> _Loss:
-        weight = [self.config['criterion_pos_weight']]
-        pos_weight = torch.tensor(weight, dtype=torch.float).to(self.get_device())
-        return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        
-        
+        weight = torch.tensor(self.config['criterion_class_weights'], dtype=torch.float32)
+        return nn.CrossEntropyLoss(weight=weight)
         
 class ShuffleNet(Module):
     channels_for_group = {
         1: 144, 2:200, 3:240, 4:272, 5:384
     }
 
-    def __init__(self, config:dict, input_shape:Tuple[int, int, int]):
+    def __init__(self, config:dict, input_shape:Tuple[int, int, int], num_classes:int):
         super(ShuffleNet, self).__init__()
         g = config['model_groups']
         s = config['model_scale_factor']
@@ -86,7 +83,7 @@ class ShuffleNet(Module):
             *[ShuffleUnit(in_channels=int(4*c*s), out_channels=int(4*c*s), stride=1, groups=g) for _ in range(3)]
         )
         self.global_pool = nn.AdaptiveAvgPool2d(output_size=1) 
-        self.fc = nn.Linear(in_features=int(4*c*s), out_features=1)
+        self.fc = nn.Linear(in_features=int(4*c*s), out_features=num_classes)
         
     def forward(self, x:torch.Tensor):
         x = self.conv1(x)
