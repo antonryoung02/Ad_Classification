@@ -55,3 +55,30 @@ def save_as_pt(model:nn.Module, filename:str):
 def add_tag_to_run(run:Any, tag:str):
     if run.tags:
         run.tags = run.tags + (tag,)
+
+
+class OrdinalLogLoss(nn.Module):
+    def __init__(self, loss_matrix:torch.Tensor, alpha:torch.float=1.0): # d(i,j)for d(Ci, Cj). hardcoded for now
+        self.loss_matrix = torch.tensor([
+            [0.0, 1.0, 1.0, 1.0, 1.0],  # Row for ads
+            [1.0, 0.0, 0.25, 0.5, 0.5],  # Row for baseball
+            [1.0, 0.25, 0.0, 0.5, 0.5],  # Row for football
+            [1.0, 0.5, 0.5, 0.0, 0.5],  # Row for basketball
+            [1.0, 0.5, 0.5, 0.5, 0.0]   # Row for hockey
+        ], dtype=torch.float32) ** alpha
+        self.softmax = nn.Softmax();
+
+    def forward(self, predicted:torch.Tensor, target:torch.Tensor): 
+        """
+        predicted: logits of output. Shape (N, C)
+        target: true class. Shape (N,)
+        self.loss_matrix: (C,C). Custom misclassification weight scaling. (loss_matrix[yi, yi] = 0)
+        """
+        p = self.softmax(predicted)  # (N, C)
+        log_p = -torch.log(1 - p + 1e-9)  # prevents log(0). For numerical stability
+        per_class_losses = (log_p) * torch.index_select(self.loss_matrix, 0, torch.flatten(target)) # (N, C) * (N,C) = (N, C)
+        losses = torch.sum(per_class_losses, dim=1) # sum(N,C) along rows = (N)
+        return losses.reshape((-1,1)) #(N,)
+
+
+        

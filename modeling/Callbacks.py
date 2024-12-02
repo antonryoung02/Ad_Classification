@@ -12,13 +12,23 @@ class MulticlassMetricsLogger(pl.Callback):
         self.metrics = {}
 
     def on_train_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: wandb.Any, batch_idx: int) -> None:
-        return super().on_train_batch_end(trainer, pl_module, outputs, batch, batch_idx)
+        preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
+        pl_module.train_acc(preds, labels)
+        pl_module.log(f'fold_{pl_module.fold_idx}/Train_Accuracy', pl_module.train_acc, on_step=False, on_epoch=True)
+
     
     def on_validation_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
-        return super().on_validation_batch_end(trainer, pl_module, outputs, batch, batch_idx, dataloader_idx)
+        preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
+        pl_module.valid_acc(preds, labels)
+        pl_module.confusion_matrix(preds, labels)
+
+        # TODO Additional validation metrics here
+        pl_module.log(f'fold_{pl_module.fold_idx}/Validation_Accuracy', pl_module.valid_acc, on_step=False, on_epoch=True)
     
     def on_train_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        return super().on_train_epoch_end(trainer, pl_module)
+        train_acc = pl_module.train_acc.compute().item()
+        pl_module.log(f'fold_{pl_module.fold_idx}/Train_Accuracy', train_acc)
+        pl_module.train_acc.reset()
     
     def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         return super().on_validation_epoch_end(trainer, pl_module)

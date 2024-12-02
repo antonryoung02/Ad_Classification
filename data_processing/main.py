@@ -31,7 +31,7 @@ ov = Openverse(OPENVERSE_CREDENTIALS_PATH, metadata_dataframe=meta_df)
 #ov.register()
 #ov.verify_email()
 token = ov.get_access_token()
-query_params = {"page_size":50, "page":2}
+query_params = {"page_size":50, "page":3}
 
 search_queries = []
 with open(SEARCH_QUERY_PATH, 'r') as file:
