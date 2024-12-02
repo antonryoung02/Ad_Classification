@@ -15,12 +15,11 @@ class CNN(pl.LightningModule):
         self.fold_idx = fold_idx
         self.initializer = ModelInitializerFactory()(config)
         self.network, self.criterion, self.optimizer, self.scheduler = self.initializer.initialize_model_crit_opt_sched(CNN.input_shape)
-        self.train_acc = BinaryAccuracy()
-        self.valid_acc = BinaryAccuracy()
-        self.valid_precision = BinaryPrecision()
-        self.valid_recall = BinaryRecall()
-        self.valid_f1 = BinaryF1Score()
-        self.valid_auroc = BinaryAUROC()
+        self.train_acc = Accuracy(task="multiclass", num_classes=5)
+        self.valid_acc = Accuracy(task="multiclass", num_classes=5)
+        self.valid_precision = Precision(task="multiclass", num_classes=5)
+        self.valid_recall = Recall(task="multiclass", num_classes=5)
+        self.valid_f1 = F1Score(task="multiclass", num_classes=5)
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         return self.network(x)
@@ -39,27 +38,27 @@ class CNN(pl.LightningModule):
     
     def training_step(self, batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int) -> dict:
         loss, logits, labels = self.common_step(batch, batch_idx)
-        probs = torch.sigmoid(logits)
-        preds = torch.round(probs)
+        probs = torch.softmax(logits, dim=1)
+        preds = torch.argmax(probs, dim=1)
         self.log(f'fold_{self.fold_idx}/Train_Loss', loss, on_step=False, on_epoch=True)
         return {"loss": loss, "preds": preds, "probs":probs, "labels": labels}
 
     def validation_step(self, batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int) -> dict:
         loss, logits, labels = self.common_step(batch, batch_idx)
-        probs = torch.sigmoid(logits)
-        preds = torch.round(probs)
+        probs = torch.softmax(logits, dim=1)
+        preds = torch.argmax(probs, dim=1)
         self.log(f'fold_{self.fold_idx}/Validation_Loss', loss, on_step=False, on_epoch=True)
         return {"loss": loss, "preds": preds, "probs":probs, "labels": labels}
 
     def test_step(self, batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int) -> dict:
         loss, logits, labels = self.common_step(batch, batch_idx)
-        probs = torch.sigmoid(logits)
-        preds = torch.round(probs)
+        probs = torch.softmax(logits, dim=1)
+        preds = torch.argmax(probs, dim=1)
         return {"loss": loss, "preds": preds, "probs":probs, "labels": labels}
     
     def predict_step(self, batch:torch.Tensor, batch_idx:int) -> torch.Tensor:
         self.eval()
         with torch.no_grad():
             logits = self.forward(batch)
-            return torch.round(torch.sigmoid(logits))
+            return torch.argmax(torch.sigmoid(logits, dim=1), dim=1)
 

@@ -11,7 +11,7 @@ parameters:
   model_resolution_multiplier:
     values: [1]
   criterion_class_weights:
-    values: [1,1,1,1,1]
+    values: [[1,1,1,1,1]]
   optimizer_lr:
     distribution: "log_uniform_values"
     min: 0.0001

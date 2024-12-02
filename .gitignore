@@ -5,6 +5,7 @@ data_processing/tests/test_output/
 stop_signal.txt
 mac_inference/images
 pi_inference/data
+modeling/configs
 
 *.pth
 *.pt
@@ -13,7 +14,7 @@ pi_inference/data
 *.json
 *.env
 *.csv
-
+*.pyc
 
 wandb/
 **/wandb/

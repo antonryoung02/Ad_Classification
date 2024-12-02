@@ -17,24 +17,24 @@ from modeling.Callbacks import KWorstPredictionsLogger, MulticlassMetricsLogger,
 from modeling.Augment import AugmentedImageFolder, AugmentationFactory
 from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, save_as_pt, add_tag_to_run
 
-DATA_PATH = "../FootballVA"
-PROJECT = "Ad_Classification_Football"
+DATA_PATH = "/Users/antonyoung/Code/SportMuteDatasets"
+PROJECT = "Ad_Classification"
 
 def main():
     wandb.login()
     # train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
-    config = load_config("sweep_config/ghostnet.yaml")
-    sweep_id = wandb.sweep(config, project=PROJECT)
-    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    config = load_config("sweep_config/shufflenet.yaml")
-    sweep_id = wandb.sweep(config, project=PROJECT)
-    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    config = load_config("sweep_config/mobilenet.yaml")
-    sweep_id = wandb.sweep(config, project=PROJECT)
-    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
     config = load_config("sweep_config/squeezenet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    # config = load_config("sweep_config/shufflenet.yaml")
+    # sweep_id = wandb.sweep(config, project=PROJECT)
+    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    # config = load_config("sweep_config/mobilenet.yaml")
+    # sweep_id = wandb.sweep(config, project=PROJECT)
+    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    # config = load_config("sweep_config/squeezenet.yaml")
+    # sweep_id = wandb.sweep(config, project=PROJECT)
+    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
 
 
 def k_fold_cross_validation():
@@ -58,19 +58,18 @@ def k_fold_cross_validation():
             'Average_Validation_Precision': [],
             'Average_Validation_Recall': [],
             'Average_Validation_F1_Score': [],
-            'Average_Validation_AUROC': [],
         }
         
         for fold_idx, (train_idx, val_idx) in enumerate(kf.split(indices)):
             train_subset = Subset(train_data_folder, [indices[i] for i in train_idx])
             val_subset = Subset(val_data_folder, [indices[i] for i in val_idx])
-            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True, num_workers=30)
-            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False, num_workers=30)
+            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True,) #num_workers=30
+            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False)
 
             model = CNN(config, fold_idx=fold_idx)
             wandb_logger = WandbLogger(project=run.project)
             wandb_logger.watch(model, log="all")
-            metrics_logger = BinaryMetricsLogger()
+            metrics_logger = MulticlassMetricsLogger()
 
             trainer = pl.Trainer(
                 deterministic=True,
@@ -78,13 +77,17 @@ def k_fold_cross_validation():
                 devices=1,
                 min_epochs=2,
                 max_epochs=config['num_epochs'],
-
                 callbacks=[
                     metrics_logger,
                     KWorstPredictionsLogger(5),
+                    
                     ],
                 logger=wandb_logger,
                 gradient_clip_val=0.5,
+                
+                #MODEL TESTING KWARGS. Disable during training.
+                #---------------------------------------------
+                #overfit_batches=0.1,
             )
             
             trainer.fit(model, train_loader, val_loader)
@@ -94,7 +97,6 @@ def k_fold_cross_validation():
             metrics['Average_Validation_Precision'].append(fold_metrics["Validation_Precision"])
             metrics['Average_Validation_Recall'].append(fold_metrics["Validation_Recall"])
             metrics['Average_Validation_F1_Score'].append(fold_metrics["Validation_F1_Score"])
-            metrics['Average_Validation_AUROC'].append(fold_metrics["Validation_AUROC"])
             break
 
         avg_metrics = {key: np.mean(val) for key, val in metrics.items()}

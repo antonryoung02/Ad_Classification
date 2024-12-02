@@ -9,13 +9,13 @@ parameters:
   model_kernel_size:
     values: [3]
   model_width_multiplier:
-    values: [1]
+    values: [0.5]
   model_ghost_ratio:
     values: [4]
   model_se_ratio:
     values: [4, 8, 16]
   criterion_class_weights:
-    values: [1,1,1,1,1]
+    values: [[1,1,1,1,1]]
   optimizer_lr:
     distribution: "log_uniform_values"
     min: 0.001

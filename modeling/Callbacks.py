@@ -10,34 +10,71 @@ class MulticlassMetricsLogger(pl.Callback):
     def __init__(self):
         super().__init__()
         self.metrics = {}
+        self.valid_labels = None
+        self.valid_predictions = None
 
-    def on_train_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: wandb.Any, batch_idx: int) -> None:
+    def on_train_batch_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule, outputs:Dict[str, torch.Tensor], batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int):
         preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
         pl_module.train_acc(preds, labels)
+
         pl_module.log(f'fold_{pl_module.fold_idx}/Train_Accuracy', pl_module.train_acc, on_step=False, on_epoch=True)
 
-    
-    def on_validation_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: torch.Tensor | Mapping[str, Any] | None, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+    def on_validation_batch_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule, outputs:Dict[str, torch.Tensor], batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int, dataloader_idx:int=0):
         preds, probs, labels = outputs['preds'], outputs['probs'], outputs['labels']
-        pl_module.valid_acc(preds, labels)
-        pl_module.confusion_matrix(preds, labels)
+        self.valid_predictions = preds
+        self.valid_labels = labels
 
-        # TODO Additional validation metrics here
+        pl_module.valid_acc(preds, labels)
+        pl_module.valid_precision(preds, labels)
+        pl_module.valid_recall(preds, labels)
+        pl_module.valid_f1(preds, labels)
+
         pl_module.log(f'fold_{pl_module.fold_idx}/Validation_Accuracy', pl_module.valid_acc, on_step=False, on_epoch=True)
     
     def on_train_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         train_acc = pl_module.train_acc.compute().item()
         pl_module.log(f'fold_{pl_module.fold_idx}/Train_Accuracy', train_acc)
         pl_module.train_acc.reset()
-    
-    def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        return super().on_validation_epoch_end(trainer, pl_module)
 
-    def on_fit_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        return super().on_fit_end(trainer, pl_module)
-    
-    def get_epoch_metrics(self) -> dict:
-        return self.metrics
+    def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+        preds = self.valid_predictions
+        labels = self.valid_labels
+
+        valid_acc = pl_module.valid_acc.compute().item()
+        valid_precision = pl_module.valid_precision.compute().item()
+        valid_recall = pl_module.valid_recall.compute().item()
+        valid_f1 = pl_module.valid_f1.compute().item()
+
+        self.metrics = {
+            'Validation_Accuracy': valid_acc,
+            'Validation_Precision': valid_precision,
+            'Validation_Recall': valid_recall,
+            'Validation_F1_Score': valid_f1,
+        }
+        
+        labels = labels.to(int).cpu().tolist() # Convert to integers
+        predicted_classes = preds.to(int).cpu().tolist()
+        wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
+                        y_true=labels, preds=predicted_classes,
+                        class_names=["Ads", "Baseball", "Football", "Basketball", "Hockey"])})
+
+
+        pl_module.valid_acc.reset()
+        pl_module.valid_precision.reset()
+        pl_module.valid_recall.reset()
+        pl_module.valid_f1.reset()
+
+    def on_fit_end(self, trainer:pl.Trainer, pl_module:pl.LightningModule) -> None:
+        if isinstance(trainer.logger, WandbLogger):
+            trainer.logger.experiment.log({
+                f'fold_{pl_module.fold_idx}/Validation_Precision': self.metrics['Validation_Precision'],
+                f'fold_{pl_module.fold_idx}/Validation_Recall': self.metrics['Validation_Recall'],
+                f'fold_{pl_module.fold_idx}/Validation_F1_Score': self.metrics['Validation_F1_Score'],
+                'fold': pl_module.fold_idx,
+            })
+
+        else:
+            raise ValueError("trainer does not have a wandb logger attached!")
 
 class BinaryMetricsLogger(pl.Callback):
     """Logs metrics to module logger on every epoch and end of training.
