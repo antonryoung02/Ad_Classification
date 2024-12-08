@@ -18,9 +18,15 @@ The classifier has been set up to be executable on an [Apple Mac](./mac_inferenc
 
 ## Progress
 
-Identified remaining issues:
+### Sep-Dec 2024
 
-Gather synthetic data
+Implemented MobileNet, ShuffletNet, and GhostNet architectures
+
+Moved all model hyperparameters to a .yaml config file
+
+Gathered baseball & basketball datasets and shifted to multiclass classification learning
+
+Recreated Ads dataset with higher quality data
 
 ### July-August 2024
 
