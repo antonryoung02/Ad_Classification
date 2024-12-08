@@ -22,7 +22,7 @@ The classifier has been set up to be executable on an [Apple Mac](./mac_inferenc
 
 Implemented MobileNet, ShuffletNet, and GhostNet architectures
 
-Moved all model hyperparameters to a .yaml config file
+Moved all pipeline hyperparameters to a .yaml config file
 
 Gathered baseball & basketball datasets and shifted to multiclass classification learning
 
