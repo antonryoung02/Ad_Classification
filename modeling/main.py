@@ -10,32 +10,30 @@ from sklearn.model_selection import KFold
 import wandb
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import EarlyStopping
 import numpy as np
 from modeling.CNN import CNN
 from modeling.Callbacks import KWorstPredictionsLogger, MulticlassMetricsLogger, BinaryMetricsLogger, GradientNormLogger, CurriculumLearningCallback
 from modeling.Augment import AugmentedImageFolder, AugmentationFactory
 from modeling.utils import write_config_to_yaml, load_config, save_as_coreml, save_as_pt, add_tag_to_run
 
-DATA_PATH = "/Users/antonyoung/Code/SportMuteDatasets"
+DATA_PATH = "../SportMuteDatasets"
 PROJECT = "Ad_Classification"
 
 def main():
     wandb.login()
     # train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
+    config = load_config("sweep_config/shufflenet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
     config = load_config("sweep_config/squeezenet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    # config = load_config("sweep_config/shufflenet.yaml")
-    # sweep_id = wandb.sweep(config, project=PROJECT)
-    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    # config = load_config("sweep_config/mobilenet.yaml")
-    # sweep_id = wandb.sweep(config, project=PROJECT)
-    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    # config = load_config("sweep_config/squeezenet.yaml")
-    # sweep_id = wandb.sweep(config, project=PROJECT)
-    # wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-
+    config = load_config("sweep_config/ghostnet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
+    config = load_config("sweep_config/mobilenet.yaml")
+    sweep_id = wandb.sweep(config, project=PROJECT)
+    wandb.agent(sweep_id, k_fold_cross_validation, count=10)
 
 def k_fold_cross_validation():
     with wandb.init() as run:
@@ -63,8 +61,8 @@ def k_fold_cross_validation():
         for fold_idx, (train_idx, val_idx) in enumerate(kf.split(indices)):
             train_subset = Subset(train_data_folder, [indices[i] for i in train_idx])
             val_subset = Subset(val_data_folder, [indices[i] for i in val_idx])
-            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True,) #num_workers=30
-            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False)
+            train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True, num_workers=20) #num_workers=30
+            val_loader = DataLoader(val_subset, batch_size=config['batch_size'], shuffle=False, num_workers=20)
 
             model = CNN(config, fold_idx=fold_idx)
             wandb_logger = WandbLogger(project=run.project)
@@ -79,14 +77,16 @@ def k_fold_cross_validation():
                 max_epochs=config['num_epochs'],
                 callbacks=[
                     metrics_logger,
-                    KWorstPredictionsLogger(5),
-                    
+                    KWorstPredictionsLogger(10),
+                    # MODEL DEBUGGING KWARGS. Disable during training.
+                    # -----------------------------------------------
+                    # GradientNormLogger(),
                     ],
                 logger=wandb_logger,
                 gradient_clip_val=0.5,
                 
-                #MODEL TESTING KWARGS. Disable during training.
-                #---------------------------------------------
+                # MODEL DEBUGGING KWARGS. Disable during training.
+                # -----------------------------------------------
                 #overfit_batches=0.1,
             )
             

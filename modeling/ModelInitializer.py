@@ -6,6 +6,7 @@ from typing import Tuple, Optional
 from torch.optim.lr_scheduler import StepLR
 
 class BaseModelInitializer:
+    """Base Class for initializing a CNN-compatible model and its criterion, optimizer, and learning rate scheduler"""
     def __init__(self, config:dict, expected_keys:set):
         self._validate_config(config, expected_keys)
         self.config = config

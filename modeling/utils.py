@@ -58,7 +58,8 @@ def add_tag_to_run(run:Any, tag:str):
 
 
 class OrdinalLogLoss(nn.Module):
-    def __init__(self, loss_matrix:torch.Tensor, alpha:torch.float=1.0): # d(i,j)for d(Ci, Cj). hardcoded for now
+    """https://paperswithcode.com/paper/a-simple-log-based-loss-function-for-ordinal-1"""
+    def __init__(self, loss_matrix:torch.Tensor, alpha:torch.float=1.0): # d(i,j)for d(Ci, Cj). hardcoded in init for now
         self.loss_matrix = torch.tensor([
             [0.0, 1.0, 1.0, 1.0, 1.0],  # Row for ads
             [1.0, 0.0, 0.25, 0.5, 0.5],  # Row for baseball

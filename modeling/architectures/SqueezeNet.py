@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
 from typing import Tuple, Optional
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import LinearLR 
 from modeling.ModelInitializer import BaseModelInitializer
 import numpy as np
 from modeling.architectures.utils import he_initialization
@@ -31,7 +31,7 @@ class SqueezeNetInitializer(BaseModelInitializer):
             criterion_class_weights 
     """
     
-    expected_keys = {'scheduler_gamma', 'scheduler_step_size',
+    expected_keys = {'scheduler_start_factor', 'scheduler_end_factor',
                      'criterion_class_weights', 'optimizer_lr',
                      'optimizer_momentum', 'optimizer_weight_decay', 
                      'model_dropout', 'model_incr_e', 'model_base_e',
@@ -45,10 +45,12 @@ class SqueezeNetInitializer(BaseModelInitializer):
         model.apply(he_initialization)
         return model
     
-    def get_scheduler(self, optimizer:Optimizer) -> StepLR:
-        gamma = self.config['scheduler_gamma']
-        step_size = self.config['scheduler_step_size']
-        scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
+    def get_scheduler(self, optimizer:Optimizer) -> LinearLR:
+        """Paper decays LR linearly to zero over training"""
+        start_factor = self.config['scheduler_start_factor']
+        end_factor = self.config['scheduler_end_factor']
+        total_iters = self.config['num_epochs'] + 1 # avoids last epoch lr=0
+        scheduler = LinearLR(optimizer, start_factor=start_factor, end_factor=end_factor, total_iters=total_iters)
         return scheduler
 
     def get_criterion(self) -> _Loss:

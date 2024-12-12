@@ -11,13 +11,15 @@ parameters:
   model_resolution_multiplier:
     values: [1]
   criterion_class_weights:
-    values: [[1,1,1,1,1]]
+    values: [[1.454, 1.10, 0.76, 1.31, 0.76]]
   optimizer_lr:
     distribution: "log_uniform_values"
     min: 0.0001
     max: 0.1
   optimizer_weight_decay:
-    values: [0, 1e-5]
+    distribution: "log_uniform_values"
+    min: 0.0001
+    max: 0.1
   optimizer_momentum:
     values: [0.9]
   optimizer_alpha:
@@ -27,13 +29,13 @@ parameters:
   batch_size:
     values: [256]
   num_epochs:
-    values: [20]
+    values: [30]
   augmentation_type:
     values: ["general"]
   augmentation_hue:
-    values: [0.3, 0.4, 0.5]
+    values: [0.0, 0.1, 0.2, 0.3]
   augmentation_contrast:
-    values: [0.1, 0.2, 0.3]
+    values: [0.0, 0.1, 0.2, 0.3]
   augmentation_flip:
     values: [0.5]
   augmentation_sharpness:

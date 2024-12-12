@@ -32,7 +32,8 @@ class CNN(pl.LightningModule):
     def common_step(self, batch:Tuple[torch.Tensor, torch.Tensor], batch_idx:int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         inputs, labels = batch
         logits = self.forward(inputs).squeeze()
-        labels = labels.float()
+        labels = labels.long()
+        
         loss = self.criterion(logits, labels)
         return loss, logits, labels
     
@@ -60,5 +61,5 @@ class CNN(pl.LightningModule):
         self.eval()
         with torch.no_grad():
             logits = self.forward(batch)
-            return torch.argmax(torch.sigmoid(logits, dim=1), dim=1)
+            return torch.argmax(torch.softmax(logits, dim=1), dim=1)
 

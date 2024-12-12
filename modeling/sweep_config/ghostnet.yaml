@@ -15,7 +15,7 @@ parameters:
   model_se_ratio:
     values: [4, 8, 16]
   criterion_class_weights:
-    values: [[1,1,1,1,1]]
+    values: [[1.454, 1.10, 0.76, 1.31, 0.76]]
   optimizer_lr:
     distribution: "log_uniform_values"
     min: 0.001
@@ -26,8 +26,8 @@ parameters:
     values: [0.0]
   optimizer_weight_decay:
     distribution: "log_uniform_values"
-    min: 0.00001
-    max: 0.01
+    min: 0.0001
+    max: 0.1
   optimizer_momentum:
     values: [0.9]
   num_fold:
@@ -39,13 +39,9 @@ parameters:
   augmentation_type:
     values: ["general"]
   augmentation_hue:
-    distribution: "uniform"
-    min: 0.0
-    max: 0.3
+    values: [0.0, 0.1, 0.2, 0.3]
   augmentation_contrast:
-    distribution: "uniform"
-    min: 0.0
-    max: 0.3
+    values: [0.0, 0.1, 0.2, 0.3]
   augmentation_flip:
     values: [0.5]
   augmentation_sharpness:

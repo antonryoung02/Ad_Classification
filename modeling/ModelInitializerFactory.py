@@ -10,7 +10,7 @@ class ModelInitializerFactory:
         """Returns a ModelInitializer depending on the value of config['model_initializer']
 
         Args:
-            config (dict): Must contain 'model_initializer' key. Supported values: 'squeezenet', 'mobilenet'
+            config (dict): Must contain 'model_initializer' key. Supported values: 'squeezenet', 'mobilenet', 'shufflenet', 'ghostnet'
 
         Returns:
             BaseModelInitializer: Allows CNN class to initialize different architectures
@@ -28,4 +28,4 @@ class ModelInitializerFactory:
             case "ghostnet":
                 return GhostNetInitializer(config)
             case _:
-                raise ValueError(f"model type {config['model_initializer']} does not exist!")
+                raise ValueError(f"model type {config['model_initializer']} does not exist! Supported values: 'squeezenet', 'mobilenet', 'shufflenet', 'ghostnet'")

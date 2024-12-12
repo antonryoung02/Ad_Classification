@@ -4,7 +4,7 @@ root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
 from data_processing.preprocessing import clear_directory
-from modeling.Augment import GeneralImageAugmentations, AbstractTransformation, AugmentedImageFolder
+from modeling.Augment import AbstractTransformation, AugmentedImageFolder
 from torchvision.transforms import v2
 from torchvision.transforms.functional import to_pil_image
 from modeling.Augment import AugmentationFactory
@@ -15,7 +15,6 @@ def simulate_data_augmentation_method(augmentation:AbstractTransformation, inver
     input_dir = "./tests/test_input"
     output_dir = "./tests/test_output"
     clear_directory(output_dir)
-    num_images = 10
 
     train_transform  = v2.Compose([v2.ToTensor()])
     invert_train_transform = v2.Normalize(
@@ -69,7 +68,7 @@ def simulate_data_augmentation_method(augmentation:AbstractTransformation, inver
     
     
 def main():
-    config = load_config('modeling/configs/<NAME>')
+    config = load_config('modeling/configs/2024-12-02_comic-sweep-2.yaml')
     dt = AugmentationFactory()(config)
     simulate_data_augmentation_method(dt, invert_normalization=True)
     #view_image_histograms()

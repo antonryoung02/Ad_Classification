@@ -6,6 +6,7 @@ stop_signal.txt
 mac_inference/images
 pi_inference/data
 modeling/configs
+data_processing/queries/
 
 *.pth
 *.pt
