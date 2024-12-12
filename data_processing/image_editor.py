@@ -1,9 +1,4 @@
-import sys
 import os
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(root_dir)
-
-import dotenv
 from PIL import Image, ImageTk, ImageFilter
 import tkinter as tk
 from data_processing.metadata_dataframe import MetadataDataframe

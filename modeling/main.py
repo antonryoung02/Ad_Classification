@@ -1,8 +1,3 @@
-import sys
-import os
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(root_dir)
-
 import torch
 from torchvision.transforms import v2
 from torch.utils.data import Subset, DataLoader
@@ -21,17 +16,17 @@ PROJECT = "Ad_Classification"
 
 def main():
     wandb.login()
-    # train_best_model('./configs/2024-11-06_hearty-sweep-6.yaml')
-    config = load_config("sweep_config/shufflenet.yaml")
+    # train_best_model('modeling/configs/2024-11-06_hearty-sweep-6.yaml')
+    config = load_config("modeling/sweep_config/shufflenet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    config = load_config("sweep_config/squeezenet.yaml")
+    config = load_config("modeling/sweep_config/squeezenet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    config = load_config("sweep_config/ghostnet.yaml")
+    config = load_config("modeling/sweep_config/ghostnet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
-    config = load_config("sweep_config/mobilenet.yaml")
+    config = load_config("modeling/sweep_config/mobilenet.yaml")
     sweep_id = wandb.sweep(config, project=PROJECT)
     wandb.agent(sweep_id, k_fold_cross_validation, count=10)
 

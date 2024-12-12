@@ -6,6 +6,7 @@ import datetime
 from openai import OpenAI
 import time
 import json 
+
 class SyntheticData:
     def __init__(self, queries, metadata_dataframe, save_dir):
         self.queries = queries

@@ -1,8 +1,3 @@
-import sys
-import os
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(root_dir)
-
 from data_processing.preprocessing import clear_directory
 from modeling.Augment import AbstractTransformation, AugmentedImageFolder
 from torchvision.transforms import v2

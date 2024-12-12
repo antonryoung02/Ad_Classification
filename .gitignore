@@ -16,6 +16,7 @@ data_processing/queries/
 *.env
 *.csv
 *.pyc
+*.zshrc
 
 wandb/
 **/wandb/

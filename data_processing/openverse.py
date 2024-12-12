@@ -4,15 +4,11 @@ import requests
 import json
 import sys
 import os
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(root_dir)
-
-import dotenv
-dotenv_path = os.path.join(root_dir, '.env')
-dotenv.load_dotenv(dotenv_path)
 import datetime
 from PIL import Image
 import io
+import dotenv
+dotenv.load_dotenv('.env')
 
 class Openverse:
     def __init__(self, credentials_path, metadata_dataframe):
