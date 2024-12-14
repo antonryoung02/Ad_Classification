@@ -10,7 +10,7 @@ This repository contains the code used to collect data, preprocess data, train a
 
 [modeling/architectures directory](./modeling/architectures)
 
-- Squeezenet: [https://arxiv.org/abs/1602.07360](https://arxiv.org/abs/1602.07360)
+- SqueezeNet: [https://arxiv.org/abs/1602.07360](https://arxiv.org/abs/1602.07360)
 
 - MobileNet: [https://arxiv.org/abs/1704.04861](https://arxiv.org/abs/1704.04861)
 
@@ -24,7 +24,7 @@ This repository contains the code used to collect data, preprocess data, train a
 
 - Model, training, and data augmentation hyperparameters are all subject to cross validation
 
-- Different architectures and hyperparameter configurations are able to run seamlessly via changing keys of the config.yaml file
+- Different architectures and hyperparameter configurations are able to run seamlessly via changing keys in the config.yaml file
 
 - Implemented custom logging classes to identify gradient problems, log worst model predictions, and log performance metrics of interest
 
@@ -32,7 +32,7 @@ This repository contains the code used to collect data, preprocess data, train a
 
 ### Curated 5-class dataset from creative commons image provider 
 
-[openverse.com](https://openverse.org)
+[data_processing directory](./data_processing)
 
 - Fetched and sorted through query results to gather over 12,000 representative images to classify Ad, Football, Basketball, Baseball, and Hockey images
 
@@ -45,10 +45,6 @@ This repository contains the code used to collect data, preprocess data, train a
 ## Motivation
 
 https://www.youtube.com/watch?v=6U6-YJ1yjoQ
-
-## Use Cases
-
-The classifier has been set up to be executable on an [Apple Mac](./mac_inference) where it mutes the TV/laptop when advertisements are on.
 
 ## Progress
 
